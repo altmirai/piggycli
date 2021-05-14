@@ -1,0 +1,28 @@
+from app.controllers.setup_controller import Setup
+from app.models.config_model import Config
+import click
+
+
+@click.group()
+def piggy():
+    pass
+
+
+@piggy.command()
+@click.option('-p', 'path', prompt='Config File Path', required=True)
+@click.option('-a', 'aws_access_key', prompt='AWS Access Key', required=True)
+def setup(path, aws_access_key):
+    # try:
+    setup = Setup()
+    setup.create(path=path, aws_access_key=aws_access_key)
+    # except Exception as error:
+    #     click.echo(error)
+
+
+@piggy.command()
+@click.option('-p', 'path', required=True)
+def config(path):
+    config = Config()
+    config.create(path)
+    click.echo(path)
+    breakpoint()
