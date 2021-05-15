@@ -79,7 +79,7 @@ def install_packages(ip_address, ssh_key_file):
 
         output, error = ssh.run('sudo yum update -y')
 
-        ssh.put('src/utilities/ssh/install.sh')
+        ssh.put('app/utilities/ssh/install.sh')
         output, error = ssh.run('ls')
         assert bool(error) is False, error
         home_dir = output.split('\n')
