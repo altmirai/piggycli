@@ -8,6 +8,8 @@ setuptools = "*"
 click = "*"
 piggy-cli = {editable = true, path = "."}
 boto3 = "*"
+paramiko = "*"
+scp = "*"
 
 [dev-packages]
 autopep8 = "*"

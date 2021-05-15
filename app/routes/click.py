@@ -9,14 +9,16 @@ def piggy():
 
 
 @piggy.command()
-@click.option('-p', 'path', prompt='Config File Path', required=True)
+@click.option('-path', 'path', prompt='Config File Path', required=True)
+@click.option('-region', 'region', prompt='AWS Region', required=True)
 @click.option('-id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True)
 @click.option('-key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True)
-def setup(path, aws_access_key_id, aws_secret_access_key):
+def setup(path, region, aws_access_key_id, aws_secret_access_key):
     # try:
     setup = Setup()
     setup.create(
         path=path,
+        region=region,
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key
     )
