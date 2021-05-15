@@ -1,20 +1,35 @@
 from app.models.config_model import Config
+from app.models.ssh_key_model import SSHKey
 import os
-
-
-class PackageNotInstalledError(Exception):
-    pass
+import boto3
 
 
 class Setup:
     def __init__(self):
         _check_packages()
+        self.ec2 = boto3.client('ec2')
+        self.cloudhsmv2 = boto3.client('cloudhsmv2')
 
-    def create(self, path, aws_access_key):
-        config = Config()
-        config.create(path=path, aws_access_key=aws_access_key)
+    def create(self, path, aws_access_key_id, aws_secret_access_key):
+        config = Config(path=path)
+        config.create(
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key
+        )
+
+        ssh_key = SSHKey.create(client=self.ec2)
+        config.update(
+            ssh_key_name=ssh_key.name,
+            ssh_key_material=ssh_key.material
+        )
+
+        breakpoint()
 
         return
+
+
+class PackageNotInstalledError(Exception):
+    pass
 
 
 def _check_packages():

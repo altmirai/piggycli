@@ -10,11 +10,16 @@ def piggy():
 
 @piggy.command()
 @click.option('-p', 'path', prompt='Config File Path', required=True)
-@click.option('-a', 'aws_access_key', prompt='AWS Access Key', required=True)
-def setup(path, aws_access_key):
+@click.option('-id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True)
+@click.option('-key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True)
+def setup(path, aws_access_key_id, aws_secret_access_key):
     # try:
     setup = Setup()
-    setup.create(path=path, aws_access_key=aws_access_key)
+    setup.create(
+        path=path,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key
+    )
     # except Exception as error:
     #     click.echo(error)
 
