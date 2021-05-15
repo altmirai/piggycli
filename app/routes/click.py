@@ -13,14 +13,16 @@ def piggy():
 @click.option('-region', 'region', prompt='AWS Region', required=True)
 @click.option('-id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True)
 @click.option('-key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True)
-def setup(path, region, aws_access_key_id, aws_secret_access_key):
+@click.option('-pass', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True)
+def setup(path, region, aws_access_key_id, aws_secret_access_key, customer_ca_key_password):
     # try:
     setup = Setup()
     setup.create(
         path=path,
         region=region,
         aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key
+        aws_secret_access_key=aws_secret_access_key,
+        customer_ca_key_password=customer_ca_key_password
     )
     # except Exception as error:
     #     click.echo(error)
