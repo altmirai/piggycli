@@ -103,7 +103,7 @@ def install_packages(ip_address, ssh_key_file):
         raise Exception(Error.args[0])
 
 
-def upload_and_move_customer_ca_cert(ip_address, ssh_key_file, file_path):
+def upload_customer_ca_cert(ip_address, ssh_key_file, file_path):
     try:
         ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
         ssh.connect()
@@ -113,18 +113,22 @@ def upload_and_move_customer_ca_cert(ip_address, ssh_key_file, file_path):
         assert bool(error) is False, error
         home_dir = output.split('\n')
         assert 'customerCA.crt' in home_dir, 'customerCA.crt was not uploaded.'
-
-        output, error = ssh.run(
-            'sudo mv customerCA.crt /opt/cloudhsm/etc/customerCA.crt')
-        assert bool(error) is False, error
-
-        output, error = ssh.run('ls /opt/cloudhsm/etc/')
-        assert bool(error) is False, error
-        opt_cloudhsm_etc_dir = output.split('\n')
-        assert 'customerCA.crt' in opt_cloudhsm_etc_dir, 'customerCA.crt was not moved.'
-
-        ssh.close()
         return
+
+    except Exception as Error:
+        raise Exception(Error.args[0])
+
+
+def activate_cluster(ip_address, ssh_key_file, eni_ip, crypto_officer_password,
+                     crypto_user_username, crypto_user_password):
+    try:
+        ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+        ssh.connect()
+        output, error = ssh.run(
+            f'script activate -eniip {eni_ip} -copassword {crypto_officer_password} -cuusername {crypto_user_username} -cupassword {crypto_user_password}')
+        assert bool(error) is False, error
+        return
+
     except Exception as Error:
         raise Exception(Error.args[0])
 

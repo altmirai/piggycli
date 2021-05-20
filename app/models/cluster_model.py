@@ -3,9 +3,9 @@ import app.utilities.ssh as ssh
 
 class Cluster:
 
-    def __init__(self, **kwargs):
-        self.client = kwargs['client']
-        self.id = kwargs['id']
+    def __init__(self, client, id):
+        self.client = client
+        self.id = id
 
     @classmethod
     def create(cls, **kwargs):
@@ -47,28 +47,15 @@ class Cluster:
         )
         return
 
-    def configure_cloudhsm_client(self, ec2_instance):
-        ssh.configure_cloudhsm_client(
-            ip_address=ec2_instance.public_ip_address,
-            ssh_key_file=ec2_instance.ssh_key_file,
-            hsm_ip_address=self.hsms[0]['EniIp']
-        )
-        return
-
-    def activate(self, ec2_instance, co_password):
-        ssh.activate_cluser(
-            ip_address=ec2_instance.public_ip_address,
-            ssh_key_file=ec2_instance.ssh_key_file,
-            co_password=co_password
-        )
-        return
-
-    def create_crypto_user(self, ec2_instance, crypto_officer, crypto_user):
-        ssh.create_crypto_user(
-            ip_address=ec2_instance.public_ip_address,
-            ssh_key_file=ec2_instance.ssh_key_file,
-            crypto_officer=crypto_officer,
-            crypto_user=crypto_user
+    def activate(self, instance, crypto_officer_password, crypto_user_username, crypto_user_password):
+        eni_ip = self.hsms[0]['EniIp']
+        ssh.activate_cluster(
+            ip_address=instance.public_ip_address,
+            ssh_key_file=instance.ssh_key_file,
+            eni_ip=eni_ip,
+            crypto_officer_password=crypto_officer_password,
+            crypto_user_username=crypto_user_username,
+            crypto_user_password=crypto_user_password
         )
         return
 

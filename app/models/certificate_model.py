@@ -27,10 +27,12 @@ class Certs:
             return x509.csr(self.pem_csr)
 
     def upload_customer_ca_cert(self, ec2_instance):
-        ssh.upload_and_move_customer_ca_cert(
+        ssh.upload_customer_ca_cert(
             ip_address=ec2_instance.public_ip_address,
             ssh_key_file=ec2_instance.ssh_key_file,
-            file_path=self.file_path)
+            file_path=self.file_path
+        )
+        return
 
     def write_to_files(self):
         # TODO: Needs lots of work!

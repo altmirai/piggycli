@@ -39,6 +39,11 @@ class SSHKey:
         resp = self.client.describe_key_pairs(KeyPairIds=[self.id])
         return resp['KeyPairs'][0]
 
+    def write_to_file(self, path):
+        with open(f'{path}/{self.name}.pem', 'w') as file:
+            file.write(self.material)
+        return
+
     def update(self):
         return False
 

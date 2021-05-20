@@ -1,6 +1,49 @@
 from app.controllers.setup_controller import Setup
-from app.models.config_model import Config
+from app.controllers.credentials_controller import CredentialsController
+import boto3
 import click
+import json
+import os
+import subprocess
+
+
+class Config(object):
+
+    def __init__(self):
+        config_file = os.environ.get('PIGGY_CREDENTIALS_PATH')
+        with open(config_file, 'r') as file:
+            config_json = file.read()
+        self.config = json.loads(config_json)
+        pass
+
+
+pass_config = click.make_pass_decorator(Config, ensure=True)
+
+
+class NotRequiredIf(click.Option):
+    def __init__(self, *args, **kwargs):
+        self.not_required_if = kwargs.pop('not_required_if')
+        assert self.not_required_if, "'not_required_if' parameter required"
+        kwargs['help'] = (kwargs.get('help', '') +
+                          ' NOTE: This argument is mutually exclusive with %s' %
+                          self.not_required_if
+                          ).strip()
+        super(NotRequiredIf, self).__init__(*args, **kwargs)
+
+    def handle_parse_result(self, ctx, opts, args):
+        we_are_present = self.name in opts
+        not_required_true = ctx.params.get(self.not_required_if)
+
+        if not_required_true:
+            if we_are_present:
+                raise click.UsageError(
+                    "Illegal usage: `%s` is mutually exclusive with `%s`" % (
+                        self.name, self.not_required_if))
+            else:
+                self.prompt = None
+                self.required = False
+
+        return super(NotRequiredIf, self).handle_parse_result(ctx, opts, args)
 
 
 @click.group()
@@ -9,29 +52,69 @@ def piggy():
 
 
 @piggy.command()
-@click.option('-path', 'path', prompt='Config File Path', required=True)
-@click.option('-region', 'region', prompt='AWS Region', required=True)
+@click.option('-path', 'path', prompt='Piggy Config File Path', required=True)
+@click.option('-region', 'aws_region', prompt='AWS Region', required=True)
 @click.option('-id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True)
 @click.option('-key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True)
-@click.option('-pass', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True)
-def setup(path, region, aws_access_key_id, aws_secret_access_key, customer_ca_key_password):
-    # try:
-    setup = Setup()
-    setup.create(
-        path=path,
-        region=region,
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
-        customer_ca_key_password=customer_ca_key_password
-    )
-    # except Exception as error:
-    #     click.echo(error)
+@click.option('-capass', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True)
+@click.option('-copass', 'crypto_officer_password', prompt='Crypto Officer Password', required=True)
+@click.option('-cuname', 'crypto_user_username', prompt='Crypto User Username', required=True)
+@click.option('-cupass', 'crypto_user_password', prompt='Crypto User Password', required=True)
+def setup(path, aws_region, aws_access_key_id, aws_secret_access_key, customer_ca_key_password,
+          crypto_officer_password, crypto_user_username, crypto_user_password):
+
+    try:
+        ec2 = boto3.client('ec2')
+        cloudhsmv2 = boto3.client('cloudhsmv2')
+        setup = Setup(
+            ec2=ec2,
+            cloudhsmv2=cloudhsmv2,
+            path=path,
+            aws_region=aws_region,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
+            customer_ca_key_password=customer_ca_key_password,
+            crypto_officer_password=crypto_officer_password,
+            crypto_user_username=crypto_user_username,
+            crypto_user_password=crypto_user_password
+        )
+        setup.run()
+    except Exception as error:
+        click.echo(error)
 
 
-@piggy.command()
-@click.option('-p', 'path', required=True)
-def config(path):
-    config = Config()
-    config.create(path)
-    click.echo(path)
-    breakpoint()
+# @piggy.command()
+# @pass_config
+# @click.option('-label', 'label', prompt='Address Label', required=True)
+# def address(config, label):
+
+#     # with open(f'{config_file.name}', 'r') as file:
+#     #     config_json = file.read()
+#     #     config = json.loads(config_json)
+#     cloudhsmv2 = boto3.client('cloudhsmv2')
+#     ec2 = boto3.client('ec2')
+#     # address = Address(config=config)
+#     breakpoint()
+
+@piggy.group()
+def credentials():
+    pass
+
+
+@credentials.command()
+@click.option('-file', 'file_path', type=click.Path(exists=True))
+@click.option('-path', 'credentials_file_path', type=click.Path(), prompt='Credentials and Files Path', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-region', 'aws_region', prompt='AWS Region', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-ssh_key_name', 'ssh_key_name', prompt='SSH Key Name', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-cluster_id', 'cluster_id', prompt='Cluster ID', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-aws_access_key_id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-aws_secret_access_key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-customer_ca_key_password', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-crypto_officer_password', 'crypto_officer_password', prompt='Crypto Officer Password', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-crypto_user_username', 'crypto_user_username', prompt='Crypto User Username', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-crypto_user_password', 'crypto_user_password', prompt='Crypto User Password', required=True, cls=NotRequiredIf, not_required_if='file_path')
+def create(**kwargs):
+    credentials = CredentialsController()
+    resp = credentials.create(**kwargs)
+
+    click.echo(resp.__dict__)

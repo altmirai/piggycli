@@ -10,10 +10,7 @@ class HSM():
         self.client = kwargs['client']
 
     @classmethod
-    def create(cls, **kwargs):
-        cluster_id = kwargs['cluster_id']
-        availability_zone = kwargs['availability_zone']
-        client = kwargs['client']
+    def create(cls, cluster_id, availability_zone, client):
 
         resp = client.create_hsm(ClusterId=cluster_id,
                                  AvailabilityZone=availability_zone)

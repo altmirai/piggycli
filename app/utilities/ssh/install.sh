@@ -18,3 +18,5 @@ source ~/.bashrc
 pip install pip --upgrade
 
 pip install boto3
+
+pip install piggy-scripts
