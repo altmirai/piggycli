@@ -1,4 +1,5 @@
 from app.models.credentials_model import Credentials
+import json
 
 
 class CredentialsController:
@@ -6,34 +7,37 @@ class CredentialsController:
     def __init__(self):
         pass
 
-    def index(self):
-        return
-
-    def new(self):
-        return
-
     def create(self, **kwargs):
-        file_path = kwargs.get('file_path')
-        if bool(file_path):
-            credentials = Credentials.create_from_file(file_path=file_path)
-        else:
-            credentials = Credentials.create(**kwargs)
-        return credentials
+        credentials = Credentials.create(**kwargs)
+        return json.dumps(
+            {
+                'credentials_file_path': credentials.credentials_file_path,
+                'data': credentials.data
+            }
+        )
 
-    def show(self):
-        return
+    def show(self, credentials_file_path):
+        credentials = Credentials.read(
+            credentials_file_path=credentials_file_path)
 
-    def edit(self):
-        return
+        return json.dumps(
+            {
+                'credentials_file_path': credentials.credentials_file_path,
+                'data': credentials.data
+            }
+        )
 
-    def update(self):
-        return
+    def update(self, credentials_file_path, **kwargs):
+        credentials = Credentials.read(
+            credentials_file_path=credentials_file_path)
+        credentials.update(**kwargs)
+
+        return json.dumps(
+            {
+                'credentials_file_path': credentials.credentials_file_path,
+                'data': credentials.data
+            }
+        )
 
     def destroy(self):
-        return
-
-    def _read_file(self, config_file_path):
-        return
-
-    def _set_environ_varriable(self, path):
         return

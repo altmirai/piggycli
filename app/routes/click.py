@@ -10,11 +10,12 @@ import subprocess
 class Config(object):
 
     def __init__(self):
-        config_file = os.environ.get('PIGGY_CREDENTIALS_PATH')
-        with open(config_file, 'r') as file:
-            config_json = file.read()
-        self.config = json.loads(config_json)
-        pass
+        with open('.env', 'r') as file:
+            env_vars_json = file.read()
+        env_vars = json.loads(env_vars_json)
+        self.path = env_vars['PATH']
+        self.credentials_file_path = os.path.join(
+            self.path, '.piggy', 'credentials.json')
 
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
@@ -52,14 +53,14 @@ def piggy():
 
 
 @piggy.command()
-@click.option('-path', 'path', prompt='Piggy Config File Path', required=True)
+@click.option('-path', 'path', prompt='Path', required=True)
 @click.option('-region', 'aws_region', prompt='AWS Region', required=True)
 @click.option('-id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True)
 @click.option('-key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True)
-@click.option('-capass', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True)
-@click.option('-copass', 'crypto_officer_password', prompt='Crypto Officer Password', required=True)
-@click.option('-cuname', 'crypto_user_username', prompt='Crypto User Username', required=True)
-@click.option('-cupass', 'crypto_user_password', prompt='Crypto User Password', required=True)
+@click.option('-customer_ca_key_password', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True)
+@click.option('-crypto_officer_password', 'crypto_officer_password', prompt='Crypto Officer Password', required=True)
+@click.option('-crypto_user_username', 'crypto_user_username', prompt='Crypto User Username', required=True)
+@click.option('-crypto_user_password', 'crypto_user_password', prompt='Crypto User Password', required=True)
 def setup(path, aws_region, aws_access_key_id, aws_secret_access_key, customer_ca_key_password,
           crypto_officer_password, crypto_user_username, crypto_user_password):
 
@@ -83,38 +84,54 @@ def setup(path, aws_region, aws_access_key_id, aws_secret_access_key, customer_c
         click.echo(error)
 
 
-# @piggy.command()
-# @pass_config
-# @click.option('-label', 'label', prompt='Address Label', required=True)
-# def address(config, label):
-
-#     # with open(f'{config_file.name}', 'r') as file:
-#     #     config_json = file.read()
-#     #     config = json.loads(config_json)
-#     cloudhsmv2 = boto3.client('cloudhsmv2')
-#     ec2 = boto3.client('ec2')
-#     # address = Address(config=config)
-#     breakpoint()
-
 @piggy.group()
 def credentials():
     pass
 
 
 @credentials.command()
-@click.option('-file', 'file_path', type=click.Path(exists=True))
-@click.option('-path', 'credentials_file_path', type=click.Path(), prompt='Credentials and Files Path', required=True, cls=NotRequiredIf, not_required_if='file_path')
-@click.option('-region', 'aws_region', prompt='AWS Region', required=True, cls=NotRequiredIf, not_required_if='file_path')
-@click.option('-ssh_key_name', 'ssh_key_name', prompt='SSH Key Name', required=True, cls=NotRequiredIf, not_required_if='file_path')
-@click.option('-cluster_id', 'cluster_id', prompt='Cluster ID', required=True, cls=NotRequiredIf, not_required_if='file_path')
-@click.option('-aws_access_key_id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True, cls=NotRequiredIf, not_required_if='file_path')
-@click.option('-aws_secret_access_key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True, cls=NotRequiredIf, not_required_if='file_path')
-@click.option('-customer_ca_key_password', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True, cls=NotRequiredIf, not_required_if='file_path')
-@click.option('-crypto_officer_password', 'crypto_officer_password', prompt='Crypto Officer Password', required=True, cls=NotRequiredIf, not_required_if='file_path')
-@click.option('-crypto_user_username', 'crypto_user_username', prompt='Crypto User Username', required=True, cls=NotRequiredIf, not_required_if='file_path')
-@click.option('-crypto_user_password', 'crypto_user_password', prompt='Crypto User Password', required=True, cls=NotRequiredIf, not_required_if='file_path')
+@click.option('-path', 'path', type=click.Path(), prompt='Path', required=True)
+@click.option('-region', 'aws_region', prompt='AWS Region', required=True)
+@click.option('-ssh_key_name', 'ssh_key_name', prompt='SSH Key Name', required=True)
+@click.option('-cluster_id', 'cluster_id', prompt='Cluster ID', required=True)
+@click.option('-aws_access_key_id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True)
+@click.option('-aws_secret_access_key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True)
+@click.option('-customer_ca_key_password', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True)
+@click.option('-crypto_officer_password', 'crypto_officer_password', prompt='Crypto Officer Password', required=True)
+@click.option('-crypto_user_username', 'crypto_user_username', prompt='Crypto User Username', required=True)
+@click.option('-crypto_user_password', 'crypto_user_password', prompt='Crypto User Password', required=True)
 def create(**kwargs):
     credentials = CredentialsController()
     resp = credentials.create(**kwargs)
+    click.echo(resp)
 
-    click.echo(resp.__dict__)
+
+@credentials.command()
+@click.option('-file', 'credentials_file_path', type=click.Path(exists=True))
+def set(credentials_file_path):
+    credentials = CredentialsController()
+    resp = credentials.show(credentials_file_path=credentials_file_path)
+    click.echo(resp)
+
+
+@credentials.command()
+@pass_config
+@click.option('-region', 'aws_region', required=False)
+@click.option('-ssh_key_name', 'ssh_key_name', required=False)
+@click.option('-cluster_id', 'cluster_id', required=False)
+@click.option('-aws_access_key_id', 'aws_access_key_id', required=False)
+@click.option('-aws_secret_access_key', 'aws_secret_access_key', required=False)
+@click.option('-customer_ca_key_password', 'customer_ca_key_password', required=False)
+@click.option('-crypto_officer_password', 'crypto_officer_password', required=False)
+@click.option('-crypto_user_username', 'crypto_user_username', required=False)
+@click.option('-crypto_user_password', 'crypto_user_password', required=False)
+def update(config, **kwargs):
+    update_dict = {}
+    for key, value in kwargs.items():
+        if value is not None:
+            update_dict[key] = value
+
+    credentials = CredentialsController()
+    resp = credentials.update(
+        credentials_file_path=config.credentials_file_path, **update_dict)
+    click.echo(resp)

@@ -7,7 +7,6 @@ class CredentialsData:
         self.aws_region = kwargs['aws_region']
         self.ssh_key_name = kwargs['ssh_key_name']
         self.cluster_id = kwargs['cluster_id']
-        self.credentials_file_path = kwargs['credentials_file_path']
         self.aws_access_key_id = kwargs['aws_access_key_id']
         self.aws_secret_access_key = kwargs['aws_secret_access_key']
         self.customer_ca_key_password = kwargs['customer_ca_key_password']
@@ -16,53 +15,54 @@ class CredentialsData:
         self.crypto_user_password = kwargs['crypto_user_password']
 
 
-# def home_directory():
-#     home_dir = os.environ.get('HOME')
-#     return home_dir
-
-
-# def path():
-#     credentials_path = os.path.join(home_directory(), '.piggy')
-#     return credentials_path
-
-
 def get_credentials_data(**kwargs):
     credentials_data = CredentialsData(**kwargs)
     return credentials_data.__dict__
 
 
+def set_env_var(var, value):
+    with open('.env', 'r') as file:
+        env_vars_json = file.read()
+
+    env_vars = json.loads(env_vars_json)
+    env_vars[var] = value
+
+    with open('.env', 'w') as file:
+        file.write(json.dumps(env_vars))
+
+    return
+
+
 class Credentials:
     def __init__(self, credentials_file_path, data):
         self.credentials_file_path = credentials_file_path
+        self.path = self.credentials_file_path.replace(os.path.join(
+            '/', '.piggy', 'credentials.json'), '')
         self.data = data
-
-        self._create_dot_piggy_dir()
         self._write_credentials_to_file()
-        self._set_credentials_path_env_var()
+        set_env_var(var='PATH', value=self.path)
 
     @classmethod
-    def create(cls, credentials_file_path, **kwargs):
+    def create(cls, **kwargs):
+        path = kwargs['path']
         data = get_credentials_data(**kwargs)
+        credentials_file_path = os.path.join(
+            path, '.piggy', 'credentials.json')
         credentials = Credentials(
             credentials_file_path=credentials_file_path, data=data)
+
         return credentials
 
     @classmethod
-    def create_from_file(cls, file_path):
-        with open(file_path, 'r') as file:
+    def read(cls, credentials_file_path):
+        with open(credentials_file_path, 'r') as file:
             json_file_data = file.read()
         file_data = json.loads(json_file_data)
         data = get_credentials_data(**file_data)
-
-        credentials_file_path = file_path.replace(os.path.join(
-            '/', '.piggy', 'credentials.json'), '')
-
         credentials = Credentials(
             credentials_file_path=credentials_file_path, data=data)
-        return credentials
 
-    def read(self):
-        return
+        return credentials
 
     def update(self, **kwargs):
         credentials_data = CredentialsData(**self.data)
@@ -76,18 +76,13 @@ class Credentials:
         return
 
     def _create_dot_piggy_dir(self):
-        piggy_path = os.path.join(self.credentials_path, '.piggy')
+        piggy_path = os.path.join(self.path, '.piggy')
         if os.path.isdir(piggy_path) is False:
             os.mkdir(piggy_path)
         return
 
     def _write_credentials_to_file(self):
-        path = os.path.join(self.credentials_path,
-                            '.piggy', 'credentials.json')
-        with open(path, 'w') as file:
+        self._create_dot_piggy_dir()
+        with open(self.credentials_file_path, 'w') as file:
             file.write(json.dumps(self.data))
-        return
-
-    def _set_credentials_path_env_var(self):
-        os.environ['PIGGY_CREDENTIALS_PATH'] = self.credentials_path
         return
