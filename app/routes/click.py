@@ -61,27 +61,36 @@ def piggy():
 @click.option('-crypto_officer_password', 'crypto_officer_password', prompt='Crypto Officer Password', required=True)
 @click.option('-crypto_user_username', 'crypto_user_username', prompt='Crypto User Username', required=True)
 @click.option('-crypto_user_password', 'crypto_user_password', prompt='Crypto User Password', required=True)
-def setup(path, aws_region, aws_access_key_id, aws_secret_access_key, customer_ca_key_password,
-          crypto_officer_password, crypto_user_username, crypto_user_password):
+def setup(**kwargs):
 
-    try:
-        ec2 = boto3.client('ec2')
-        cloudhsmv2 = boto3.client('cloudhsmv2')
-        setup = Setup(
-            ec2=ec2,
-            cloudhsmv2=cloudhsmv2,
-            path=path,
-            aws_region=aws_region,
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key,
-            customer_ca_key_password=customer_ca_key_password,
-            crypto_officer_password=crypto_officer_password,
-            crypto_user_username=crypto_user_username,
-            crypto_user_password=crypto_user_password
-        )
-        setup.run()
-    except Exception as error:
-        click.echo(error)
+    aws_access_key_id = kwargs['aws_access_key_id']
+    aws_secret_access_key = kwargs['aws_secret_access_key']
+
+    # ec2 = boto3.client('ec2', aws_access_key_id=aws_access_key_id,
+    #                    aws_secret_access_key=aws_secret_access_key)
+    # cloudhsmv2 = boto3.client(
+    #     'cloudhsmv2', aws_access_key_id=aws_access_key_id,
+    #     aws_secret_access_key=aws_secret_access_key)
+    ec2 = boto3.client('ec2')
+    cloudhsmv2 = boto3.client('cloudhsmv2')
+
+    setup = Setup(
+        ec2=ec2,
+        cloudhsmv2=cloudhsmv2,
+        path=kwargs['path'],
+        aws_region=kwargs['aws_region'],
+        customer_ca_key_password=kwargs['customer_ca_key_password'],
+        crypto_officer_password=kwargs['crypto_officer_password'],
+        crypto_user_username=kwargs['crypto_user_username'],
+        crypto_user_password=kwargs['crypto_user_password']
+    )
+
+    resp = setup.run()
+    cluster_id = resp['cluster_id']
+    ssh_key_name = resp['ssh_key_name']
+    ssh_key_pem = resp['ssh_key_pem']
+    instance_id = resp['instance_id']
+    breakpoint()
 
 
 @piggy.group()
