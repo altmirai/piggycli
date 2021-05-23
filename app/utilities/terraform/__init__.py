@@ -4,9 +4,9 @@ from pathlib import Path
 
 
 class Tf:
-    def __init__(self, **kwargs):
-        self.region = kwargs['region']
-        self.ssh_key_name = kwargs['ssh_key_name']
+    def __init__(self, region, ssh_key_name):
+        self.region = region
+        self.ssh_key_name = ssh_key_name
         self.dir = Path(__file__).parent
 
     @property

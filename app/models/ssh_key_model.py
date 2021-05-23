@@ -31,13 +31,7 @@ class SSHKey:
                 del key['Tags']
         return key_pairs
 
-    def write_to_file(self, path):
-        with open(f'{path}/{self.name}.pem', 'w') as file:
-            file.write(self.material)
-        return
-
-    def update(self):
-        return False
-
-    def destroy(self):
-        return False
+    # def write_to_file(self, path):
+    #     with open(f'{path}/{self.name}.pem', 'w') as file:
+    #         file.write(self.material)
+    #     return True

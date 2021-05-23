@@ -35,19 +35,19 @@ def test_all():
                          {'KeyPairId': 'key-071d152e1ec5428df', 'KeyName': 'Piggy_SSH_Key_40cc19f5'}]
 
 
-def test_write_to_file():
-    client = botocore.session.get_session().create_client('ec2')
-    test_path = os.getcwd()
+# def test_write_to_file():
+#     client = botocore.session.get_session().create_client('ec2')
+#     test_path = os.getcwd()
 
-    with Stubber(client) as stubber:
-        stubber.add_response(
-            'create_key_pair', create_key_pair_resp, {'KeyName': ANY})
-        key = SSHKey.create(client=client)
-        key.write_to_file(path=test_path)
+#     with Stubber(client) as stubber:
+#         stubber.add_response(
+#             'create_key_pair', create_key_pair_resp, {'KeyName': ANY})
+#         key = SSHKey.create(client=client)
+#         key.write_to_file(path=test_path)
 
-        pem_file_path = os.path.join(test_path, f'{key.name}.pem')
+#         pem_file_path = os.path.join(test_path, f'{key.name}.pem')
 
-        assert os.path.exists(pem_file_path)
-        with open(pem_file_path, 'r') as file:
-            pem_file = file.read()
-        assert pem_file == key.material
+#         assert os.path.exists(pem_file_path)
+#         with open(pem_file_path, 'r') as file:
+#             pem_file = file.read()
+#         assert pem_file == key.material

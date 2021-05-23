@@ -103,16 +103,17 @@ def install_packages(ip_address, ssh_key_file):
         raise Exception(Error.args[0])
 
 
-def upload_customer_ca_cert(ip_address, ssh_key_file, file_path):
+def upload_file_to_instance(ip_address, ssh_key_file, file_path):
     try:
         ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
         ssh.connect()
 
-        ssh.put(f'{file_path}/customerCA.crt')
+        ssh.put(file_path)
         output, error = ssh.run('ls')
         assert bool(error) is False, error
         home_dir = output.split('\n')
-        assert 'customerCA.crt' in home_dir, 'customerCA.crt was not uploaded.'
+        assert file_path.split(
+            '/')[-1] in home_dir, f"{file_path.split('/')[-1]} was not uploaded."
         return
 
     except Exception as Error:

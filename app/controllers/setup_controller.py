@@ -4,16 +4,18 @@ from app.models.instance_model import Instance
 from app.models.cluster_model import Cluster
 from app.models.hsm_model import HSM
 from app.models.certificate_model import Certs
+import app.utilities.ssh as ssh
+
 
 from app.utilities.terraform import Tf
 import os
-import boto3
 import time
 
 
 class Setup:
     def __init__(self, ec2, cloudhsmv2, path, aws_region, customer_ca_key_password, crypto_officer_password, crypto_user_username, crypto_user_password):
         _check_packages(packages=['aws', 'terraform'])
+
         self.ec2 = ec2
         self.cloudhsmv2 = cloudhsmv2
         self.path = path
@@ -33,16 +35,21 @@ class Setup:
 
         self.path = _set_path(path=self.path, cluster=cluster)
 
-        ssh_key.write_to_file(path=self.path)
-        ssh_key_file = os.path.join(self.path, f'{ssh_key.name}.pem')
+        ssh_key_file = _write_ssh_key_to_file(ssh_key=ssh_key, path=self.path)
 
         instance = _instance(
             client=self.ec2, id=resp['instance_id'], ssh_key_file=ssh_key_file)
 
-        _hsm(cluster=cluster, client=self.cloudhsmv2)
+        hsm = _hsm(cluster=cluster, client=self.cloudhsmv2)
 
         certs = _certs(
-            cluster=cluster, customer_ca_key_password=self.customer_ca_key_password, path=self.path, instance=instance)
+            cluster=cluster, customer_ca_key_password=self.customer_ca_key_password)
+
+        _write_certs_to_file(certs=certs, path=self.path, cluster=cluster)
+
+        customer_ca_cert_path = os.path.join(self.path, 'customerCA.crt')
+        _upload_customer_ca_cert(
+            instance=instance, file_path=customer_ca_cert_path)
 
         _initialize_cluster(cluster=cluster, certs=certs)
 
@@ -62,7 +69,7 @@ def _check_packages(packages=[]):
         proc = os.system(f'{package} --version')
         if proc != 0:
             raise PackageNotInstalledError(f'{package} is not installed')
-    return
+    return True
 
 
 def _get_ssh_key(client):
@@ -87,6 +94,17 @@ def _set_path(path, cluster):
     return path
 
 
+def _write_ssh_key_to_file(ssh_key, path):
+    ssh_key_file = os.path.join(path, f'{ssh_key.name}.pem')
+    try:
+        with open(ssh_key_file, 'w') as file:
+            file.write(ssh_key.material)
+        assert os.path.exists(ssh_key_file)
+        return ssh_key_file
+    except Exception as error:
+        raise WriteFileError(error.args[0])
+
+
 def _instance(client, id, ssh_key_file):
     instance = Instance(client=client, id=id, ssh_key_file=ssh_key_file)
     instance.install_packages()
@@ -109,20 +127,46 @@ def _hsm(client, cluster):
         print(
             f'aws_cloudhsm_v2_HSM: Creating ... [{str_time} elapsed]')
     print(f'aws_cloudhsm_v2_HSM: Created! [{str_time} elapsed]')
-    return
+    return hsm
 
 
-def _certs(customer_ca_key_password, cluster, path, instance):
+def _certs(customer_ca_key_password, cluster):
     certs = Certs(
         pem_csr=cluster.csr,
-        cluster_id=cluster.id,
-        passphrase=customer_ca_key_password,
-        file_path=path
+        passphrase=customer_ca_key_password
     )
-    certs.write_to_files()
-    certs.upload_customer_ca_cert(ec2_instance=instance)
 
     return certs
+
+
+def _write_certs_to_file(certs, path, cluster):
+    # Customer CA Key
+    with open(os.path.join(path, 'customerCA.key'), 'wb') as file:
+        file.write(certs.pem_private_key)
+
+    # Customer CA Certificate
+    with open(os.path.join(path, 'customerCA.crt'), 'wb') as file:
+        file.write(certs.pem_ca_cert)
+
+    # Cluster CSR
+    csr = certs.pem_csr if type(
+        certs.pem_csr) is bytes else certs.pem_csr.encode('utf-8')
+    with open(os.path.join(path, f'{cluster.id}_ClusterCSR.csr'), 'wb') as file:
+        file.write(csr)
+
+    # Customer HSM Certificate
+    with open(os.path.join(path, f'{cluster.id}_CustomerHSMCertificate.crt'), 'wb') as file:
+        file.write(certs.pem_hsm_cert)
+
+
+def _upload_customer_ca_cert(file_path, instance, count=0):
+    if os.path.exists(file_path):
+        ssh.upload_file_to_instance(
+            ip_address=instance.public_ip_address,
+            ssh_key_file=instance.ssh_key_file,
+            file_path=file_path
+        )
+    return True
 
 
 def _initialize_cluster(cluster, certs):
@@ -163,4 +207,8 @@ def _activate_cluster(cluster, instance, crypto_officer_password, crypto_user_us
 
 
 class PackageNotInstalledError(Exception):
+    pass
+
+
+class WriteFileError(Exception):
     pass

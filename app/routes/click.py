@@ -66,13 +66,11 @@ def setup(**kwargs):
     aws_access_key_id = kwargs['aws_access_key_id']
     aws_secret_access_key = kwargs['aws_secret_access_key']
 
-    # ec2 = boto3.client('ec2', aws_access_key_id=aws_access_key_id,
-    #                    aws_secret_access_key=aws_secret_access_key)
-    # cloudhsmv2 = boto3.client(
-    #     'cloudhsmv2', aws_access_key_id=aws_access_key_id,
-    #     aws_secret_access_key=aws_secret_access_key)
-    ec2 = boto3.client('ec2')
-    cloudhsmv2 = boto3.client('cloudhsmv2')
+    ec2 = boto3.client('ec2', aws_access_key_id=aws_access_key_id,
+                       aws_secret_access_key=aws_secret_access_key)
+    cloudhsmv2 = boto3.client(
+        'cloudhsmv2', aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key)
 
     setup = Setup(
         ec2=ec2,
