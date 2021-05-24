@@ -13,6 +13,7 @@ class CredentialsData:
         self.crypto_officer_password = kwargs['crypto_officer_password']
         self.crypto_user_username = kwargs['crypto_user_username']
         self.crypto_user_password = kwargs['crypto_user_password']
+        self.instance_id = kwargs['instance_id']
 
 
 def get_credentials_data(**kwargs):

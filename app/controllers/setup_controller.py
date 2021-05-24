@@ -27,16 +27,11 @@ class Setup:
 
     def run(self):
         ssh_key = _get_ssh_key(client=self.ec2)
-
         resp = _build_infrastructure(
             ssh_key_name=ssh_key.name, region=self.aws_region)
-
         cluster = _cluster(id=resp['cluster_id'], client=self.cloudhsmv2)
-
         self.path = _set_path(path=self.path, cluster=cluster)
-
         ssh_key_file = _write_ssh_key_to_file(ssh_key=ssh_key, path=self.path)
-
         instance = _instance(
             client=self.ec2, id=resp['instance_id'], ssh_key_file=ssh_key_file)
 

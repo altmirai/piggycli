@@ -10,6 +10,7 @@ import subprocess
 class Config(object):
 
     def __init__(self):
+        breakpoint
         with open('.env', 'r') as file:
             env_vars_json = file.read()
         env_vars = json.loads(env_vars_json)
@@ -62,7 +63,6 @@ def piggy():
 @click.option('-crypto_user_username', 'crypto_user_username', prompt='Crypto User Username', required=True)
 @click.option('-crypto_user_password', 'crypto_user_password', prompt='Crypto User Password', required=True)
 def setup(**kwargs):
-
     aws_access_key_id = kwargs['aws_access_key_id']
     aws_secret_access_key = kwargs['aws_secret_access_key']
 
@@ -88,7 +88,23 @@ def setup(**kwargs):
     ssh_key_name = resp['ssh_key_name']
     ssh_key_pem = resp['ssh_key_pem']
     instance_id = resp['instance_id']
-    breakpoint()
+
+    credentials = CredentialsController()
+    cedentials_json = credentials.create(
+        credentials_file_path=kwargs['path'],
+        aws_region=kwargs['aws_region'],
+        aws_access_key_id=kwargs['aws_access_key_id'],
+        aws_secret_access_key=kwargs['aws_secret_access_key'],
+        customer_ca_key_password=kwargs['customer_ca_key_password'],
+        crypto_officer_password=kwargs['crypto_officer_password'],
+        crypto_user_username=kwargs['crypto_user_username'],
+        crypto_user_password=kwargs['crypto_user_password'],
+        cluster_id=resp['cluster_id'],
+        instance_id=resp['instance_id'],
+        ssh_key_name=resp['ssh_key_name']
+    )
+
+    click.echo(cedentials_json)
 
 
 @piggy.group()
@@ -101,6 +117,7 @@ def credentials():
 @click.option('-region', 'aws_region', prompt='AWS Region', required=True)
 @click.option('-ssh_key_name', 'ssh_key_name', prompt='SSH Key Name', required=True)
 @click.option('-cluster_id', 'cluster_id', prompt='Cluster ID', required=True)
+@click.option('-instance_id', 'instance_id', prompt='Instance ID', required=True)
 @click.option('-aws_access_key_id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True)
 @click.option('-aws_secret_access_key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True)
 @click.option('-customer_ca_key_password', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True)
@@ -126,6 +143,7 @@ def set(credentials_file_path):
 @click.option('-region', 'aws_region', required=False)
 @click.option('-ssh_key_name', 'ssh_key_name', required=False)
 @click.option('-cluster_id', 'cluster_id', required=False)
+@click.option('-instance_id', 'instance_id', required=False)
 @click.option('-aws_access_key_id', 'aws_access_key_id', required=False)
 @click.option('-aws_secret_access_key', 'aws_secret_access_key', required=False)
 @click.option('-customer_ca_key_password', 'customer_ca_key_password', required=False)
