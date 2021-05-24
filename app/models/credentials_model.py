@@ -34,6 +34,14 @@ def set_env_var(var, value):
     return
 
 
+def read_env_vars():
+    with open('.env', 'r') as file:
+        env_vars_json = file.read()
+
+    env_vars = json.loads(env_vars_json)
+    return env_vars
+
+
 class Credentials:
     def __init__(self, credentials_file_path, data):
         self.credentials_file_path = credentials_file_path

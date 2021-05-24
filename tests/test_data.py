@@ -1,7 +1,7 @@
 
 class CredentialsData:
     def __init__(self):
-        self.path = '/Volumes/CloudHSM'
+        self.path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files'
         self.aws_region = 'us-east-2'
         self.ssh_key_name = 'Piggy_SSH_Key_cf865bae'
         self.cluster_id = 'cluster-lbtkdldygfh'

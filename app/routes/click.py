@@ -1,5 +1,6 @@
 from app.controllers.setup_controller import Setup
 from app.controllers.credentials_controller import CredentialsController
+from app.controllers.status_controller import StatusController
 import boto3
 import click
 import json
@@ -10,13 +11,17 @@ import subprocess
 class Config(object):
 
     def __init__(self):
-        breakpoint
         with open('.env', 'r') as file:
             env_vars_json = file.read()
         env_vars = json.loads(env_vars_json)
-        self.path = env_vars['PATH']
-        self.credentials_file_path = os.path.join(
-            self.path, '.piggy', 'credentials.json')
+
+        self.path = env_vars.get('PATH')
+
+        if bool(self.path):
+            self.credentials_file_path = os.path.join(
+                self.path, '.piggy', 'credentials.json')
+        else:
+            self.credentials_file_path = None
 
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
@@ -84,10 +89,6 @@ def setup(**kwargs):
     )
 
     resp = setup.run()
-    cluster_id = resp['cluster_id']
-    ssh_key_name = resp['ssh_key_name']
-    ssh_key_pem = resp['ssh_key_pem']
-    instance_id = resp['instance_id']
 
     credentials = CredentialsController()
     cedentials_json = credentials.create(
@@ -151,12 +152,52 @@ def set(credentials_file_path):
 @click.option('-crypto_user_username', 'crypto_user_username', required=False)
 @click.option('-crypto_user_password', 'crypto_user_password', required=False)
 def update(config, **kwargs):
-    update_dict = {}
-    for key, value in kwargs.items():
-        if value is not None:
-            update_dict[key] = value
+    if bool(config.path):
+        update_dict = {}
+        for key, value in kwargs.items():
+            if bool(value):
+                update_dict[key] = value
 
-    credentials = CredentialsController()
-    resp = credentials.update(
-        credentials_file_path=config.credentials_file_path, **update_dict)
-    click.echo(resp)
+        credentials = CredentialsController()
+        resp = credentials.update(
+            credentials_file_path=config.credentials_file_path, **update_dict)
+
+        click.echo(resp)
+    else:
+        no_config_found()
+
+
+@piggy.command()
+@pass_config
+@click.option('-sleep', 'action', flag_value='sleep', default=False)
+@click.option('-wake', 'action', flag_value='wake', default=False)
+def status(config, action):
+    if bool(config.path):
+        status = StatusController(
+            config_file_path=config.config_file_path, path=config.path)
+
+        if action == 'wake':
+            if click.confirm('Are you sure you want to wake the pig?'):
+                click.echo('Waking the Pig!')
+            else:
+                click.echo('Piggy sleeps tonight!')
+        elif action == 'sleep':
+            if click.confirm('Are you sure you want to put the pig to sleep?'):
+                click.echo('Putting the pig to bed!')
+            else:
+                click.echo('The pig remains active!')
+        else:
+            click.echo("Getting piggy's status now")
+    else:
+        no_config_found()
+
+
+def no_config_found():
+    click.echo('')
+    click.echo(
+        'No config file found.'
+    )
+    click.echo('If you have already setup your AWS infrastructure, run piggy credentials set -file <your config file> or piggy credentials create.')
+    click.echo(
+        'If you have not set up your AWS infrastructre, run piggy setup.')
+    click.echo('')
