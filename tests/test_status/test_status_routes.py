@@ -35,3 +35,12 @@ def test_tear_down_credentials():
     assert os.path.exists(os.path.join(
         t.path, '.piggy', 'credentials.json')) is False
     assert os.path.isdir(os.path.join(t.path, '.piggy')) is False
+
+
+def test_status():
+    set_up_credentials()
+    runner = CliRunner()
+    result = runner.invoke(click.status)
+
+    assert result.exit_code == 0
+    tear_down_credentials()

@@ -92,7 +92,7 @@ def setup(**kwargs):
 
     credentials = CredentialsController()
     cedentials_json = credentials.create(
-        credentials_file_path=kwargs['path'],
+        path=kwargs['path'],
         aws_region=kwargs['aws_region'],
         aws_access_key_id=kwargs['aws_access_key_id'],
         aws_secret_access_key=kwargs['aws_secret_access_key'],
@@ -173,8 +173,16 @@ def update(config, **kwargs):
 @click.option('-wake', 'action', flag_value='wake', default=False)
 def status(config, action):
     if bool(config.path):
-        status = StatusController(
-            config_file_path=config.config_file_path, path=config.path)
+        credentials = CredentialsController().create_from_file(
+            credentials_file_path=config.credentials_file_path)
+
+        aws_access_key_id = credentials.data['aws_access_key_id']
+        aws_secret_access_key = credentials.data['aws_secret_access_key']
+
+        ec2 = boto3.client('ec2', aws_access_key_id=aws_access_key_id,
+                           aws_secret_access_key=aws_secret_access_key)
+        cloudhsmv2 = boto3.client(
+            'cloudhsmv2', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
 
         if action == 'wake':
             if click.confirm('Are you sure you want to wake the pig?'):
@@ -187,7 +195,10 @@ def status(config, action):
             else:
                 click.echo('The pig remains active!')
         else:
-            click.echo("Getting piggy's status now")
+            status = StatusController(credentials_file_path=config.credentials_file_path,
+                                      path=config.path, ec2=ec2, cloudhsmv2=cloudhsmv2)
+
+            click.echo(status.show())
     else:
         no_config_found()
 

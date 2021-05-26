@@ -37,7 +37,6 @@ def set_env_var(var, value):
 def read_env_vars():
     with open('.env', 'r') as file:
         env_vars_json = file.read()
-
     env_vars = json.loads(env_vars_json)
     return env_vars
 
@@ -48,8 +47,6 @@ class Credentials:
         self.path = self.credentials_file_path.replace(os.path.join(
             '/', '.piggy', 'credentials.json'), '')
         self.data = data
-        self._write_credentials_to_file()
-        set_env_var(var='PATH', value=self.path)
 
     @classmethod
     def create(cls, **kwargs):
@@ -57,6 +54,12 @@ class Credentials:
         data = get_credentials_data(**kwargs)
         credentials_file_path = os.path.join(
             path, '.piggy', 'credentials.json')
+
+        _write_credentials_to_file(
+            credentials_file_path=credentials_file_path,  path=path, data=data)
+
+        set_env_var(var='PATH', value=path)
+
         credentials = Credentials(
             credentials_file_path=credentials_file_path, data=data)
 
@@ -78,20 +81,23 @@ class Credentials:
         for key, value in kwargs.items():
             setattr(credentials_data, key, value)
         self.data = credentials_data.__dict__
-        self._write_credentials_to_file()
+        _write_credentials_to_file(
+            credentials_file_path=self.credentials_file_path,  path=self.path, data=self.data)
         return self
 
     def delete(self):
         return
 
-    def _create_dot_piggy_dir(self):
-        piggy_path = os.path.join(self.path, '.piggy')
-        if os.path.isdir(piggy_path) is False:
-            os.mkdir(piggy_path)
-        return
 
-    def _write_credentials_to_file(self):
-        self._create_dot_piggy_dir()
-        with open(self.credentials_file_path, 'w') as file:
-            file.write(json.dumps(self.data))
-        return
+def _create_dot_piggy_dir(path):
+    piggy_path = os.path.join(path, '.piggy')
+    if os.path.isdir(piggy_path) is False:
+        os.mkdir(piggy_path)
+    return
+
+
+def _write_credentials_to_file(credentials_file_path, path, data):
+    _create_dot_piggy_dir(path=path)
+    with open(credentials_file_path, 'w') as file:
+        file.write(json.dumps(data))
+    return

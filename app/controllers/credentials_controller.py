@@ -16,6 +16,9 @@ class CredentialsController:
             }
         )
 
+    def create_from_file(self, credentials_file_path):
+        return Credentials.read(credentials_file_path=credentials_file_path)
+
     def show(self, credentials_file_path):
         credentials = Credentials.read(
             credentials_file_path=credentials_file_path)
