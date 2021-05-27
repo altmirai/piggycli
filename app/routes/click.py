@@ -76,10 +76,14 @@ def setup(**kwargs):
     cloudhsmv2 = boto3.client(
         'cloudhsmv2', aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key)
+    resource = boto3.resource(
+        'ec2', aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key)
 
     setup = Setup(
         ec2=ec2,
         cloudhsmv2=cloudhsmv2,
+        resource=resource,
         path=kwargs['path'],
         aws_region=kwargs['aws_region'],
         customer_ca_key_password=kwargs['customer_ca_key_password'],
@@ -179,26 +183,41 @@ def status(config, action):
         aws_access_key_id = credentials.data['aws_access_key_id']
         aws_secret_access_key = credentials.data['aws_secret_access_key']
 
-        ec2 = boto3.client('ec2', aws_access_key_id=aws_access_key_id,
-                           aws_secret_access_key=aws_secret_access_key)
+        ec2 = boto3.client(
+            'ec2',
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key
+        )
         cloudhsmv2 = boto3.client(
-            'cloudhsmv2', aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+            'cloudhsmv2',
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key
+        )
+        resource = boto3.resource(
+            'ec2',
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key
+        )
+
+        status = StatusController(
+            credentials_file_path=config.credentials_file_path,
+            path=config.path,
+            ec2=ec2,
+            cloudhsmv2=cloudhsmv2,
+            resource=resource
+        )
 
         if action == 'wake':
-            if click.confirm('Are you sure you want to wake the pig?'):
-                click.echo('Waking the Pig!')
-            else:
-                click.echo('Piggy sleeps tonight!')
+            if click.confirm('Are you sure you want to wake the pig, starting an HSM costs money?'):
+                resp = status.wake()
+                click.echo(resp)
         elif action == 'sleep':
             if click.confirm('Are you sure you want to put the pig to sleep?'):
-                click.echo('Putting the pig to bed!')
-            else:
-                click.echo('The pig remains active!')
+                resp = status.sleep()
+                click.echo(resp)
         else:
-            status = StatusController(credentials_file_path=config.credentials_file_path,
-                                      path=config.path, ec2=ec2, cloudhsmv2=cloudhsmv2)
-
-            click.echo(status.show())
+            resp = status.show()
+            click.echo(resp)
     else:
         no_config_found()
 

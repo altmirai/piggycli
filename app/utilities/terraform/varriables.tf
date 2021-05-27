@@ -3,6 +3,16 @@ variable "region" {
   description = "AWS Region"
 }
 
+variable "aws_access_key_id" {
+  type        = string
+  description = "AWS Access Key ID"
+}
+
+variable "aws_secret_access_key" {
+  type        = string
+  description = "AWS Secret Access Key"
+}
+
 variable "private_subnets" {
   type    = list(string)
   default = ["10.0.1.0/28", "10.0.2.0/28", "10.0.3.0/28"]

@@ -10,11 +10,12 @@ import time
 
 
 class Setup:
-    def __init__(self, ec2, cloudhsmv2, path, aws_region, customer_ca_key_password, crypto_officer_password, crypto_user_username, crypto_user_password):
+    def __init__(self, ec2, cloudhsmv2, resource, path, aws_region, customer_ca_key_password, crypto_officer_password, crypto_user_username, crypto_user_password):
         _check_packages(packages=['aws', 'terraform'])
 
         self.ec2 = ec2
         self.cloudhsmv2 = cloudhsmv2
+        self.resource = resource
         self.path = path
         self.aws_region = aws_region
         self.customer_ca_key_password = customer_ca_key_password
@@ -24,13 +25,22 @@ class Setup:
 
     def run(self):
         ssh_key = _get_ssh_key(client=self.ec2)
+
         resp = _build_infrastructure(
-            ssh_key_name=ssh_key.name, region=self.aws_region)
+            ssh_key_name=ssh_key.name,
+            region=self.aws_region,
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key
+        )
+
         cluster = _cluster(id=resp['cluster_id'], client=self.cloudhsmv2)
+
         self.path = _set_path(path=self.path, cluster=cluster)
+
         ssh_key_file = _write_ssh_key_to_file(ssh_key=ssh_key, path=self.path)
+
         instance = _instance(
-            client=self.ec2, id=resp['instance_id'], ssh_key_file=ssh_key_file)
+            resource=self.resource, id=resp['instance_id'], ssh_key_file=ssh_key_file)
 
         hsm = _hsm(cluster=cluster, client=self.cloudhsmv2)
 
@@ -68,10 +78,12 @@ def _get_ssh_key(client):
     return SSHKey.create(client=client)
 
 
-def _build_infrastructure(region, ssh_key_name):
+def _build_infrastructure(region, ssh_key_name, aws_access_key_id, aws_secret_access_key):
     return Tf(
         region=region,
-        ssh_key_name=ssh_key_name
+        ssh_key_name=ssh_key_name,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key
     ).build()
 
 
@@ -97,8 +109,8 @@ def _write_ssh_key_to_file(ssh_key, path):
         raise WriteFileError(error.args[0])
 
 
-def _instance(client, id, ssh_key_file):
-    instance = Instance(client=client, id=id, ssh_key_file=ssh_key_file)
+def _instance(resource, id, ssh_key_file):
+    instance = Instance(resource=resource, id=id, ssh_key_file=ssh_key_file)
     instance.install_packages()
     return instance
 

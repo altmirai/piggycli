@@ -1,38 +1,47 @@
 import app.utilities.ssh as ssh
-import boto3
 
 
 class Instance:
 
-    def __init__(self, client, id, ssh_key_file):
-        self.client = client
+    def __init__(self, resource, id):
+        self.resource = resource
         self.id = id
-        self.ssh_key_file = ssh_key_file
 
     @classmethod
-    def all(cls, **kwargs):
-        client = kwargs['client']
+    def all(cls, client):
         resp = client.describe_instances()
-        return resp['Reservations']
+        return resp['Reservations'][0]['Instances']
 
     @property
     def public_ip_address(self):
-        instance = self.read()
+        instance = self.resource.Instance(self.id)
         return instance.public_ip_address
 
-    def install_packages(self):
+    @property
+    def state(self):
+        instance = self.resource.Instance(self.id)
+        return instance.state['Name']
+
+    @property
+    def ssh_key_name(self):
+        instance = self.resource.Instance(self.id)
+        return instance.key_name
+
+    def install_packages(self, ssh_key_file):
         outputs = ssh.install_packages(ip_address=self.public_ip_address,
-                                       ssh_key_file=self.ssh_key_file)
+                                       ssh_key_file=ssh_key_file)
 
         return True
 
-    def create(self):
-        return False
+    def start(self):
+        instance = self.resource.Instance(self.id)
+        resp = instance.start()
+        return resp
 
-    def read(self):
-        resouce = boto3.resource('ec2')
-        instance = resouce.Instance(self.id)
-        return instance
+    def stop(self):
+        instance = self.resource.Instance(self.id)
+        resp = instance.stop()
+        return resp
 
     def update(self):
 

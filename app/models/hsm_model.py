@@ -4,10 +4,10 @@ import pdb
 
 class HSM():
 
-    def __init__(self, **kwargs):
-        self.id = kwargs['id']
-        self.cluster_id = kwargs['cluster_id']
-        self.client = kwargs['client']
+    def __init__(self, id, cluster_id, client):
+        self.id = id
+        self.cluster_id = cluster_id
+        self.client = client
 
     @classmethod
     def create(cls, cluster_id, availability_zone, client):

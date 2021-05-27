@@ -12,8 +12,7 @@ class Cluster:
         return False
 
     @classmethod
-    def all(cls, **kwargs):
-        client = kwargs['client']
+    def all(cls, client):
         resp = client.describe_clusters()
         return resp['Clusters']
 

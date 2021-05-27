@@ -4,8 +4,10 @@ from pathlib import Path
 
 
 class Tf:
-    def __init__(self, region, ssh_key_name):
+    def __init__(self, region, ssh_key_name, aws_access_key_id, aws_secret_access_key):
         self.region = region
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
         self.ssh_key_name = ssh_key_name
         self.dir = Path(__file__).parent
 
@@ -64,7 +66,8 @@ class Tf:
         return True
 
     def _add_vars(self, cmds):
-        vars = {"region": self.region, "ssh_key_name": self.ssh_key_name}
+        vars = {"region": self.region, "ssh_key_name": self.ssh_key_name,
+                "aws_access_key_id": self.aws_access_key_id, 'aws_secret_access_key': aws_secret_access_key}
         for var, value in vars.items():
             cmds.append('-var')
             cmds.append(f'{var}={value}')

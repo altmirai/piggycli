@@ -27,8 +27,9 @@ def test_get_ssh_key():
 
 test_setup_vars = {
     'aws_region': 'us-east-2',
-    'ec2': boto3.client('ec2'),
-    'cloudhsmv2': boto3.client('cloudhsmv2'),
+    'ec2': botocore.session.get_session().create_client('ec2'),
+    'cloudhsmv2': botocore.session.get_session().create_client('cloudhsmv2'),
+    'resource': boto3.resource('ec2'),
     'path': '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files',
     'customer_ca_key_password': 'password1',
     'crypto_officer_password': 'password1',
