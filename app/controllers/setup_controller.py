@@ -10,7 +10,8 @@ import time
 
 
 class Setup:
-    def __init__(self, ec2, cloudhsmv2, resource, path, aws_region, customer_ca_key_password, crypto_officer_password, crypto_user_username, crypto_user_password):
+    def __init__(self, ec2, cloudhsmv2, resource, path, aws_region, aws_access_key_id, aws_secret_access_key,
+                 customer_ca_key_password, crypto_officer_password, crypto_user_username, crypto_user_password):
         _check_packages(packages=['aws', 'terraform'])
 
         self.ec2 = ec2
@@ -18,6 +19,8 @@ class Setup:
         self.resource = resource
         self.path = path
         self.aws_region = aws_region
+        self.aws_access_key_id = aws_access_key_id
+        self.aws_secret_access_key = aws_secret_access_key
         self.customer_ca_key_password = customer_ca_key_password
         self.crypto_officer_password = crypto_officer_password
         self.crypto_user_username = crypto_user_username

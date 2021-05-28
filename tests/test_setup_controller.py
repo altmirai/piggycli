@@ -27,6 +27,8 @@ def test_get_ssh_key():
 
 test_setup_vars = {
     'aws_region': 'us-east-2',
+    'aws_access_key_id': 'AKIA3PBN5ZODEY7MAREB',
+    'aws_secret_access_key': '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',
     'ec2': botocore.session.get_session().create_client('ec2'),
     'cloudhsmv2': botocore.session.get_session().create_client('cloudhsmv2'),
     'resource': boto3.resource('ec2'),
