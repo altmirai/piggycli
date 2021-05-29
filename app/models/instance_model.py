@@ -9,8 +9,13 @@ class Instance:
 
     @classmethod
     def all(cls, client):
+        instances = []
         resp = client.describe_instances()
-        return resp['Reservations'][0]['Instances']
+        for reservation in resp['Reservations']:
+            instance = reservation['Instances'][0]
+            if instance['State']['Name'] != 'terminated':
+                instances.append(instance)
+        return instances
 
     @property
     def public_ip_address(self):

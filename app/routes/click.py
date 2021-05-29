@@ -11,17 +11,22 @@ import subprocess
 class Config(object):
 
     def __init__(self):
-        with open('.env', 'r') as file:
-            env_vars_json = file.read()
-        env_vars = json.loads(env_vars_json)
+        try:
+            with open('.env', 'r') as file:
+                env_vars_json = file.read()
+            env_vars = json.loads(env_vars_json)
 
-        self.path = env_vars.get('PATH')
+            self.path = env_vars.get('PATH')
+        except:
+            self.path = None
 
         if bool(self.path):
             self.credentials_file_path = os.path.join(
                 self.path, '.piggy', 'credentials.json')
         else:
             self.credentials_file_path = None
+
+        self.creds_exists = os.path.exists(self.credentials_file_path)
 
 
 pass_config = click.make_pass_decorator(Config, ensure=True)
@@ -86,6 +91,8 @@ def setup(**kwargs):
         resource=resource,
         path=kwargs['path'],
         aws_region=kwargs['aws_region'],
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
         customer_ca_key_password=kwargs['customer_ca_key_password'],
         crypto_officer_password=kwargs['crypto_officer_password'],
         crypto_user_username=kwargs['crypto_user_username'],
@@ -156,7 +163,7 @@ def set(credentials_file_path):
 @click.option('-crypto_user_username', 'crypto_user_username', required=False)
 @click.option('-crypto_user_password', 'crypto_user_password', required=False)
 def update(config, **kwargs):
-    if bool(config.path):
+    if bool(config.creds_exists):
         update_dict = {}
         for key, value in kwargs.items():
             if bool(value):
@@ -168,7 +175,7 @@ def update(config, **kwargs):
 
         click.echo(resp)
     else:
-        no_config_found()
+        no_credentials_found()
 
 
 @piggy.command()
@@ -176,7 +183,7 @@ def update(config, **kwargs):
 @click.option('-sleep', 'action', flag_value='sleep', default=False)
 @click.option('-wake', 'action', flag_value='wake', default=False)
 def status(config, action):
-    if bool(config.path):
+    if bool(config.creds_exists):
         credentials = CredentialsController().create_from_file(
             credentials_file_path=config.credentials_file_path)
 
@@ -219,13 +226,13 @@ def status(config, action):
             resp = status.show()
             click.echo(resp)
     else:
-        no_config_found()
+        no_credentials_found()
 
 
-def no_config_found():
+def no_credentials_found():
     click.echo('')
     click.echo(
-        'No config file found.'
+        'No credentials file found.'
     )
     click.echo('If you have already setup your AWS infrastructure, run piggy credentials set -file <your config file> or piggy credentials create.')
     click.echo(

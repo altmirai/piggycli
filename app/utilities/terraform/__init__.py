@@ -67,7 +67,7 @@ class Tf:
 
     def _add_vars(self, cmds):
         vars = {"region": self.region, "ssh_key_name": self.ssh_key_name,
-                "aws_access_key_id": self.aws_access_key_id, 'aws_secret_access_key': aws_secret_access_key}
+                "aws_access_key_id": self.aws_access_key_id, 'aws_secret_access_key': self.aws_secret_access_key}
         for var, value in vars.items():
             cmds.append('-var')
             cmds.append(f'{var}={value}')

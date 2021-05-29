@@ -1,4 +1,5 @@
 import uuid
+import os
 
 
 class SSHKey:
@@ -17,7 +18,8 @@ class SSHKey:
             id=resp['KeyPairId'],
             name=resp['KeyName'],
             material=resp['KeyMaterial'],
-            fingerprint=resp['KeyFingerprint'])
+            fingerprint=resp['KeyFingerprint']
+        )
         return key
 
     @classmethod
@@ -31,7 +33,9 @@ class SSHKey:
                 del key['Tags']
         return key_pairs
 
-    # def write_to_file(self, path):
-    #     with open(f'{path}/{self.name}.pem', 'w') as file:
-    #         file.write(self.material)
-    #     return True
+    def write_to_file(self, cluster_id, path):
+        self.ssh_key_file = os.path.join(
+            f'{cluster_id}', path, f'{self.name}.pem')
+        with open(self.ssh_key_file, 'w') as file:
+            file.write(self.material)
+        return self.ssh_key_file

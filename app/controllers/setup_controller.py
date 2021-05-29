@@ -40,10 +40,11 @@ class Setup:
 
         self.path = _set_path(path=self.path, cluster=cluster)
 
-        ssh_key_file = _write_ssh_key_to_file(ssh_key=ssh_key, path=self.path)
+        ssh_key_file = _write_ssh_key_to_file(
+            ssh_key=ssh_key, cluster_id=cluster.id, path=self.path)
 
         instance = _instance(
-            resource=self.resource, id=resp['instance_id'], ssh_key_file=ssh_key_file)
+            resource=self.resource, id=resp['instance_id'], ssh_key=ssh_key)
 
         hsm = _hsm(cluster=cluster, client=self.cloudhsmv2)
 
@@ -54,12 +55,21 @@ class Setup:
 
         customer_ca_cert_path = os.path.join(self.path, 'customerCA.crt')
         _upload_customer_ca_cert(
-            instance=instance, file_path=customer_ca_cert_path)
+            instance=instance,
+            file_path=customer_ca_cert_path,
+            ssh_key=ssh_key
+        )
 
         _initialize_cluster(cluster=cluster, certs=certs)
 
-        _activate_cluster(cluster=cluster, instance=instance, crypto_officer_password=self.crypto_officer_password,
-                          crypto_user_username=self.crypto_user_username, crypto_user_password=self.crypto_user_password)
+        _activate_cluster(
+            cluster=cluster,
+            instance=instance,
+            ssh_key=ssh_key,
+            crypto_officer_password=self.crypto_officer_password,
+            crypto_user_username=self.crypto_user_username,
+            crypto_user_password=self.crypto_user_password
+        )
 
         return {
             'cluster_id': cluster.id,
@@ -101,20 +111,22 @@ def _set_path(path, cluster):
     return path
 
 
-def _write_ssh_key_to_file(ssh_key, path):
-    ssh_key_file = os.path.join(path, f'{ssh_key.name}.pem')
-    try:
-        with open(ssh_key_file, 'w') as file:
-            file.write(ssh_key.material)
-        assert os.path.exists(ssh_key_file)
-        return ssh_key_file
-    except Exception as error:
-        raise WriteFileError(error.args[0])
+def _write_ssh_key_to_file(ssh_key, cluster_id, path):
+    ssh_key_file = ssh_key.write_to_file(cluster_id=cluster_id, path=path)
+    return ssh_key_file
+    # ssh_key_file = os.path.join(path, f'{ssh_key.name}.pem')
+    # try:
+    #     with open(ssh_key_file, 'w') as file:
+    #         file.write(ssh_key.material)
+    #     assert os.path.exists(ssh_key_file)
+    #     return ssh_key_file
+    # except Exception as error:
+    #     raise WriteFileError(error.args[0])
 
 
-def _instance(resource, id, ssh_key_file):
-    instance = Instance(resource=resource, id=id, ssh_key_file=ssh_key_file)
-    instance.install_packages()
+def _instance(resource, id, ssh_key):
+    instance = Instance(resource=resource, id=id)
+    instance.install_packages(ssh_key_file=ssh_key.ssh_key_file)
     return instance
 
 
@@ -166,11 +178,11 @@ def _write_certs_to_file(certs, path, cluster):
         file.write(certs.pem_hsm_cert)
 
 
-def _upload_customer_ca_cert(file_path, instance, count=0):
+def _upload_customer_ca_cert(file_path, instance, ssh_key):
     if os.path.exists(file_path):
         ssh.upload_file_to_instance(
             ip_address=instance.public_ip_address,
-            ssh_key_file=instance.ssh_key_file,
+            ssh_key_file=ssh_key.ssh_key_file,
             file_path=file_path
         )
     return True
@@ -192,12 +204,13 @@ def _initialize_cluster(cluster, certs):
     return
 
 
-def _activate_cluster(cluster, instance, crypto_officer_password, crypto_user_username, crypto_user_password):
+def _activate_cluster(cluster, instance, crypto_officer_password, crypto_user_username, crypto_user_password, ssh_key):
     cluster.activate(
         instance=instance,
         crypto_officer_password=crypto_officer_password,
         crypto_user_username=crypto_user_username,
-        crypto_user_password=crypto_user_password
+        crypto_user_password=crypto_user_password,
+        ssh_key=ssh_key
     )
 
     seconds = 0
