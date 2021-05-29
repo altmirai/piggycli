@@ -1,5 +1,4 @@
 from app.models.cluster_model import Cluster
-import pdb
 
 
 class HSM():
@@ -11,12 +10,9 @@ class HSM():
 
     @classmethod
     def create(cls, cluster_id, availability_zone, client):
-
         resp = client.create_hsm(ClusterId=cluster_id,
                                  AvailabilityZone=availability_zone)
-
         hsm_id = resp['Hsm']['HsmId']
-
         return cls(id=hsm_id, cluster_id=cluster_id, client=client)
 
     @property
