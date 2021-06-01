@@ -1,6 +1,18 @@
+import boto3
+import botocore.session
+import os
+
+resource = boto3.resource('ec2')
+ec2 = botocore.session.get_session().create_client('ec2')
+cloudhsmv2 = botocore.session.get_session().create_client('cloudhsmv2')
 
 test_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files'
 production_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files'
+credentials_file_path = os.path.join(
+    test_path,
+    '.piggy',
+    'credentials.json'
+)
 
 aws_region = 'us-east-2'
 ssh_key_name = 'Piggy_SSH_Key_0194afd1'
@@ -33,3 +45,16 @@ pem_private_key = b'-----BEGIN RSA PRIVATE KEY-----\nProc-Type: 4,ENCRYPTED\nDEK
 pem_csr = '-----BEGIN CERTIFICATE REQUEST-----\nMIIC0TCCAbkCAQAwgYsxRDAJBgNVBAYTAlVTMAkGA1UECAwCQ0EwDQYDVQQKDAZD\nYXZpdW0wDQYDVQQLDAZOM0ZJUFMwDgYDVQQHDAdTYW5Kb3NlMUMwQQYDVQQDDDpI\nU006QjRGMUU4QjY3OTY3NTg2M0Y4REIzMjExMTM2NEIzOlBBUlROOjEzLCBmb3Ig\nRklQUyBtb2RlMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvDY9IZlR\nThUQ2Jfc+JWPC15WqZbMRKiEba+FICcwno+izaDza+rzpqtaU0Q5UVYGOe4vEtVj\nxsj3hdhXc2rK53vhw4EdmKojPzAy3F/TJGzSvzIlPUCdWLtbKlNEkg/VGu1YcsMV\nvQvyGFSusj8idWT4DvsZxPuEwiXE4qEPmyB1uo2lKIYWfulP9QrRdvnrBF/zBmXO\nblg3zHf1KQ8bYWW8Lc/DGcRnRvPBfDvYNS6DJPrMiM+QeqhM5Iegu7OlTOTkV72d\nmaMqTuuWOGrb6LCDr7hWGfjAE3517Jt2ia2bB8YE5Wda4mUBEmpVl5Kho547S6Sx\nMiChX3U3VCHbVwIDAQABoAAwDQYJKoZIhvcNAQELBQADggEBAKqEhDqVClGRES2C\nIwqKxPVYo5lbynEZ94qSeKzI9rgoW3kPVyro1vBxAzMwDSJd1TXmw2fJAOY7Zdiw\n+j0SMZCb81ehVNa8VRUsOrU6phC72jqUSFSWpRkCDxc9inIdUfBpqIQxsd0JpYB7\nzvyuKILMNDI3Ys7S4i1ErHv8IyDUdmVjP+qRaEAhecBEt5GVZPDg/vjEsS83hqf4\n7EZ9S9noDgnoa79W1ovFr8wW8EZ5Spi50D5hsFCMy4a4rErwneAATEm2MmtLfIy7\nCWTUET6SZN2Ncn/oM1ulVYofYTctmpiAGMMjB9joA6nW0I2QfhaSOTugU+NmwnC0\nOo+qHwM=\n-----END CERTIFICATE REQUEST-----\n'
 pem_hsm_cert = b'-----BEGIN CERTIFICATE-----\nMIIDVTCCAj2gAwIBAgIUGVpAlXDcW6bULCcyAPeUMgY2Hf4wDQYJKoZIhvcNAQEL\nBQAwPTELMAkGA1UEBhMCVVMxCjAIBgNVBAgMAS4xCjAIBgNVBAcMAS4xCjAIBgNV\nBAoMAS4xCjAIBgNVBAMMAS4wHhcNMjEwNTIzMTcwNDQ2WhcNMzEwNTIzMTgwNDQ2\nWjCBizFEMAkGA1UEBhMCVVMwCQYDVQQIDAJDQTANBgNVBAoMBkNhdml1bTANBgNV\nBAsMBk4zRklQUzAOBgNVBAcMB1Nhbkpvc2UxQzBBBgNVBAMMOkhTTTpCNEYxRThC\nNjc5Njc1ODYzRjhEQjMyMTExMzY0QjM6UEFSVE46MTMsIGZvciBGSVBTIG1vZGUw\nggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC8Nj0hmVFOFRDYl9z4lY8L\nXlaplsxEqIRtr4UgJzCej6LNoPNr6vOmq1pTRDlRVgY57i8S1WPGyPeF2Fdzasrn\ne+HDgR2YqiM/MDLcX9MkbNK/MiU9QJ1Yu1sqU0SSD9Ua7VhywxW9C/IYVK6yPyJ1\nZPgO+xnE+4TCJcTioQ+bIHW6jaUohhZ+6U/1CtF2+esEX/MGZc5uWDfMd/UpDxth\nZbwtz8MZxGdG88F8O9g1LoMk+syIz5B6qEzkh6C7s6VM5ORXvZ2ZoypO65Y4atvo\nsIOvuFYZ+MATfnXsm3aJrZsHxgTlZ1riZQESalWXkqGjnjtLpLEyIKFfdTdUIdtX\nAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAKAogyiwCBLFzu7k0i42NQ4AZbYkQg1k\nS6e7N3oOVwG/BEaeyt47Uc99g0cSnhtvet/Mlt4GURPc66bZY1EoHQ0N/UFF3BCB\nk4Gumu6BToIogAjiFmKLDVgeWrCtJlHxdYLe6lyiIEbGuuMBOZ6lmLxRS8Fj6/as\nblxkvdbrVjKutFJPwUI46gmGvaSP+x1lV3KyJcRgG2Q4Sw0hctMFm88jjZZ9mK5F\n3am64/bU9jIa4edirjv5fXhgQcxSlLMA1ltQtgQBypnHVUlgCAG28n8YLjoS2lQO\nbiwa/jYdJFKwyZ08Mv23ixNeACb8PNT61iHsqa6Xq6igYUwaqwIFH2Y=\n-----END CERTIFICATE-----\n'
 pem_ca_cert = b'-----BEGIN CERTIFICATE-----\nMIIDCDCCAfCgAwIBAgIBATANBgkqhkiG9w0BAQsFADA9MQswCQYDVQQGEwJVUzEK\nMAgGA1UECAwBLjEKMAgGA1UEBwwBLjEKMAgGA1UECgwBLjEKMAgGA1UEAwwBLjAe\nFw0yMTA1MjMxNzA0NDZaFw0zMTA1MjMxODA0NDZaMD0xCzAJBgNVBAYTAlVTMQow\nCAYDVQQIDAEuMQowCAYDVQQHDAEuMQowCAYDVQQKDAEuMQowCAYDVQQDDAEuMIIB\nIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxOECV3e8foFfXoqsWZJ+Wwo4\nRQFwOdQvWyH/dGWadbN3G/KMxOxZIcpAL0z/UmpG9hiqOem6OdmQyzdTI6ZfUCkn\nKXEinFnS+ZpA6zetrfVl5f7h3fyJAu8Da2o9eaR8BMn2ATg0QRv6aWpwuMPlIQ2h\ni4Fp0zmp2Xp3aO5wNoY9Thw6/eM1MWk0WIDvkmzEVqKhCpvGCwO0bD+NWMYlhZxM\nw9PTSVpMS5zq0ugvWP9I6vO4ZEm422e6MzdvED4LAD1FAS519I8Y+VKWVP5Wrr/2\nL2ovK6ml7mLQi9Bs0PU9HuYqh1tX8Vj5658dDu6L8t1IBR7gb8mrt2zH5fyqnwID\nAQABoxMwETAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBtWL/g\nVoclYzrJAeAkcMPewPD5+4O3UfszRvL4EcProx1/XPsvVIjRQ4oBDrCWlmiIxq02\n97JzucooTsyVcJycR4ppoEhW/1XXHyrbBE8nVAcS0x+eQpwJQ9OtW0NM+qAaEjZd\nU/vqeYZwmeSs4aHXhPhifeazrzzaZSVhlHs2rEW1/taxIxCFYT6SipJDLqVlKt6f\nksXtdn8BOcYy1Q6ybXpN+g9D3EnM/X4uHyt3pJ0y14KZHBDd9oYwpx2SLc2SGneG\nZb5zsWluSmrtQS1U8TgT9PrgcTZGwQcurka3yzdb84IkZ0ZSJGn0sZ1TdHWeQB1j\nbix3cnyr6DF7ZD5n\n-----END CERTIFICATE-----\n'
+
+create_key_pair_resp = {
+    'KeyFingerprint': KeyFingerprint,
+    'KeyMaterial': KeyMaterial,
+    'KeyName': KeyName,
+    'KeyPairId': KeyPairId
+}
+
+build_infra_resp = {
+    'cluster_id': cluster_id,
+    'vpc_id': vpc_id,
+    'instance_id': instance_id
+}

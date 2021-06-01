@@ -1,6 +1,9 @@
 from app.models.certificate_model import Certs
 from app.models.credentials_model import Credentials, read_env_vars, set_env_var
 from app.models.ssh_key_model import SSHKey
+from tests.aws_call_fixtures import *
+from tests.model_fixtures import *
+import tests.data as data
 
 import botocore.session
 from botocore.stub import Stubber, ANY
@@ -41,16 +44,16 @@ class CredentialsData:
     @property
     def credentials_kwargs(self):
         return {
-            'aws_region': self.aws_region,
-            'ssh_key_name': self.ssh_key_name,
-            'cluster_id': self.cluster_id,
-            'instance_id': self.instance_id,
-            'aws_access_key_id': self.aws_access_key_id,
-            'aws_secret_access_key': self.aws_secret_access_key,
-            'customer_ca_key_password': self.customer_ca_key_password,
-            'crypto_officer_password': self.crypto_officer_password,
-            'crypto_user_username': self.crypto_user_username,
-            'crypto_user_password': self.crypto_user_password,
+            'aws_region': data.aws_region,
+            'ssh_key_name': data.ssh_key_name,
+            'cluster_id': data.cluster_id,
+            'instance_id': data.instance_id,
+            'aws_access_key_id': data.aws_access_key_id,
+            'aws_secret_access_key': data.aws_secret_access_key,
+            'customer_ca_key_password': data.customer_ca_key_password,
+            'crypto_officer_password': data.crypto_officer_password,
+            'crypto_user_username': data.crypto_user_username,
+            'crypto_user_password': data.crypto_user_password,
         }
 
     @property
@@ -100,46 +103,27 @@ class CredentialsData:
 t = CredentialsData()
 
 
+def delete_files_and_folders():
+    cluster_folder = os.path.join(data.test_path, data.cluster_id)
+    piggy_folder = os.path.join(data.test_path, '.piggy')
+    test_files_folder = os.path.join(data.test_path)
+    folders = [cluster_folder, piggy_folder, test_files_folder]
+
+    for folder in folders:
+        if os.path.isdir(folder):
+            files = os.listdir(folder)
+            for file in files:
+                assert os.path.isdir(
+                    file) is False, 'Unexepected file structure.'
+                os.remove(os.path.join(folder, file))
+            os.rmdir(folder)
+
+
 def pytest_sessionstart(session):
-    if os.path.isdir(t.test_path):
-        files = os.listdir(t.test_path)
-        for file in files:
-            os.remove(os.path.join(t.test_path, file))
-    else:
-        os.mkdir(t.test_path)
+    if os.path.isdir(data.test_path):
+        delete_files_and_folders()
+    os.mkdir(data.test_path)
     set_env_var(var='PATH', value=t.test_path)
-
-
-@ pytest.fixture
-def credentials():
-    credentials = Credentials.create(path=t.test_path, **t.credentials_kwargs)
-    yield credentials
-    os.remove(os.path.join(t.test_path, '.piggy', 'credentials.json'))
-    os.rmdir(os.path.join(t.test_path, '.piggy'))
-
-
-@ pytest.fixture
-def ssh_key_ec2_test_create():
-    client = botocore.session.get_session().create_client('ec2')
-    with Stubber(client) as stubber:
-        stubber.add_response(
-            'create_key_pair',
-            t.ssh_key_create_resp,
-            {'KeyName': ANY}
-        )
-        yield client
-
-
-@ pytest.fixture
-def ssh_key_ec2_test_all():
-    client = botocore.session.get_session().create_client('ec2')
-    with Stubber(client) as stubber:
-        stubber.add_response(
-            'describe_key_pairs',
-            t.ssh_key_describe_resp,
-            {}
-        )
-        yield client
 
 
 @pytest.fixture
@@ -149,7 +133,6 @@ def ssh_key():
 
 
 @pytest.fixture
-# @patch('conftest.certs.pem_private_key', return_value=t.pem_private_key, autospec=True)
 def certs():
     certs = Certs(**t.certs_kwargs)
     yield certs
@@ -161,8 +144,5 @@ def test_data():
 
 
 def pytest_sessionfinish(session, exitstatus):
-    files = os.listdir(t.test_path)
-    for file in files:
-        os.remove(os.path.join(t.test_path, file))
-    os.rmdir(t.test_path)
+    delete_files_and_folders()
     set_env_var(var='PATH', value=t.production_path)

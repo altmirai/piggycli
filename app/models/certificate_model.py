@@ -6,6 +6,7 @@ import os
 class Certs:
 
     def __init__(self, pem_csr, passphrase):
+        breakpoint()
         self.pem_csr = pem_csr
         self.passphrase = passphrase
 
