@@ -8,10 +8,6 @@ class Cluster:
         self.id = id
 
     @classmethod
-    def create(cls, **kwargs):
-        return False
-
-    @classmethod
     def all(cls, client):
         resp = client.describe_clusters()
         return resp['Clusters']

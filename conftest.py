@@ -138,11 +138,6 @@ def certs():
     yield certs
 
 
-@ pytest.fixture
-def test_data():
-    return CredentialsData()
-
-
 def pytest_sessionfinish(session, exitstatus):
     delete_files_and_folders()
     set_env_var(var='PATH', value=t.production_path)
