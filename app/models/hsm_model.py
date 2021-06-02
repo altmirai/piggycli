@@ -28,9 +28,6 @@ class HSM():
                 return hsm
         return False
 
-    def update(self):
-        return False
-
     def destroy(self):
         resp = self.client.delete_hsm(
             ClusterId=self.cluster_id, HsmId=self.id)

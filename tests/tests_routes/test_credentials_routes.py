@@ -12,7 +12,7 @@ def test_credentials_set(credentials):
     assert result.exit_code == 0
 
 
-def test_credentials_create(data):
+def test_credentials_create():
     runner = CliRunner()
     result = runner.invoke(click.credentials, ['create',
                                                '-path', data.test_path,

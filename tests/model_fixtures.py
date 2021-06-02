@@ -1,4 +1,5 @@
 from app.models.credentials_model import Credentials
+from app.models.cluster_model import Cluster
 import tests.data as data
 from tests.mocks import tf
 import os
@@ -27,13 +28,11 @@ def credentials():
 
 
 @pytest.fixture
-def certs():
-    pass
-
-
-@pytest.fixture
 def cluster():
-    pass
+    cluster = Cluster(client=data.cloudhsmv2, id=data.cluster_id)
+    yield cluster
+    os.remove(os.path.join(data.test_path, '.piggy', 'credentials.json'))
+    os.rmdir(os.path.join(data.test_path, '.piggy'))
 
 
 @pytest.fixture

@@ -1,6 +1,8 @@
 import boto3
 import botocore.session
 import os
+import datetime
+from dateutil.tz import tzutc
 
 resource = boto3.resource('ec2')
 ec2 = botocore.session.get_session().create_client('ec2')
@@ -53,8 +55,221 @@ create_key_pair_resp = {
     'KeyPairId': KeyPairId
 }
 
+describe_clusters_resp = {
+    'Clusters':
+    [
+        {
+            'BackupPolicy': 'DEFAULT',
+            'BackupRetentionPolicy': {
+                'Type': 'DAYS',
+                'Value': '90'
+            },
+            'ClusterId': cluster_id,
+            'Hsms': [
+                {
+                    'AvailabilityZone': 'us-east-2a',
+                    'ClusterId': cluster_id,
+                    'SubnetId': 'subnet-03fce2972dfdfe9b8',
+                    'EniId': 'eni-08ff8a68aae5933c1',
+                    'EniIp': '10.0.1.6',
+                    'HsmId': hsm_id,
+                    'State': 'ACTIVE',
+                    'StateMessage': 'HSM created.'
+                }
+            ], 'HsmType': 'hsm1.medium',
+            'SecurityGroup': 'sg-0778d7aa573ae2427',
+            'State': 'ACTIVE',
+            'SubnetMapping': {
+                'us-east-2a': 'subnet-03fce2972dfdfe9b8',
+                'us-east-2b': 'subnet-0ba1722070b8dd5c4',
+                'us-east-2c': 'subnet-0ec0911a438c139ea'
+            },
+            'VpcId': '',
+            'Certificates':
+            {
+                'ClusterCsr': pem_csr,
+                'HsmCertificate': '',
+                'AwsHardwareCertificate': '',
+                'ManufacturerHardwareCertificate': '',
+                'ClusterCertificate': ''
+            },
+                'TagList':
+                [
+                    {
+                        'Key': 'Name',
+                        'Value': 'cloudhsm_cluster'
+                    }
+            ]
+        }
+    ]
+}
+
+
 build_infra_resp = {
     'cluster_id': cluster_id,
     'vpc_id': vpc_id,
     'instance_id': instance_id
+}
+
+create_hsm_resp = {
+    'Hsm':
+    {
+        'AvailabilityZone': 'us-east-2a',
+        'ClusterId': cluster_id,
+        'SubnetId': 'subnet-03fce2972dfdfe9b8',
+        'HsmId': hsm_id,
+        'State': 'CREATE_IN_PROGRESS'
+    }
+}
+
+delete_hsm_resp = {'HsmId': hsm_id}
+
+describe_instances_resp = {
+    'Reservations':
+    [
+        {
+            'Groups': [],
+            'Instances':
+            [
+                {
+                    'AmiLaunchIndex': 0,
+                    'ImageId': 'ami-077e31c4939f6a2f3',
+                    'InstanceId': instance_id,
+                    'InstanceType': 't2.micro',
+                    'KeyName': ssh_key_name,
+                    'Monitoring':
+                    {
+                        'State': 'disabled'
+                    },
+                        'Placement':
+                        {
+                            'AvailabilityZone': 'us-east-2a',
+                            'GroupName': '',
+                            'Tenancy': 'default'
+                    },
+                            'PrivateDnsName': 'ip-10-0-0-190.us-east-2.compute.internal',
+                            'PrivateIpAddress': '10.0.0.190',
+                            'ProductCodes': [],
+                            'PublicDnsName': '',
+                            'State':
+                            {
+                                'Code': 80,
+                                'Name': 'stopped'
+                    },
+                                'StateTransitionReason': 'User initiated (2021-05-29 01:28:54 GMT)',
+                                'SubnetId': 'subnet-01e5b0f8e5be3bf01',
+                                'VpcId': vpc_id,
+                                'Architecture': 'x86_64',
+                                'BlockDeviceMappings':
+                                [
+                                    {
+                                        'DeviceName': '/dev/xvda',
+                                        'Ebs':
+                                        {
+                                            'AttachTime': datetime.datetime(2021, 5, 29, 0, 38, 36, tzinfo=tzutc()),
+                                            'DeleteOnTermination': True,
+                                            'Status': 'attached',
+                                            'VolumeId': 'vol-025692bd4913d872c'
+                                        }
+                                    }
+                    ],
+                    'ClientToken': 'E8515C74-B4FC-4655-980B-8F4394DF4F16',
+                    'EbsOptimized': False,
+                    'EnaSupport': True,
+                    'Hypervisor': 'xen',
+                    'NetworkInterfaces':
+                    [
+                        {
+                            'Attachment':
+                            {
+                                'AttachTime': datetime.datetime(2021, 5, 29, 0, 38, 35, tzinfo=tzutc()),
+                                'AttachmentId': 'eni-attach-0c4c6ca6d1ebf5835',
+                                'DeleteOnTermination': True,
+                                'DeviceIndex': 0,
+                                'Status': 'attached',
+                                'NetworkCardIndex': 0
+                            },
+                            'Description': '',
+                            'Groups':
+                            [
+                                {
+                                    'GroupName': 'cloudhsm-cluster-2f2ynawbwz5-sg',
+                                    'GroupId': 'sg-0778d7aa573ae2427'
+                                },
+                                {
+                                    'GroupName': 'default',
+                                    'GroupId': 'sg-0259648b4083884a5'
+                                }
+                            ],
+                            'Ipv6Addresses': [],
+                            'MacAddress': '02:49:e2:cf:b8:f0',
+                            'NetworkInterfaceId': 'eni-043e068e735e6279a',
+                            'OwnerId': '945793393231',
+                            'PrivateDnsName': 'ip-10-0-0-190.us-east-2.compute.internal',
+                            'PrivateIpAddress': '10.0.0.190',
+                            'PrivateIpAddresses':
+                            [
+                                {
+                                    'Primary': True,
+                                    'PrivateDnsName': 'ip-10-0-0-190.us-east-2.compute.internal',
+                                    'PrivateIpAddress': '10.0.0.190'
+                                }
+                            ],
+                            'SourceDestCheck': True,
+                            'Status': 'in-use',
+                            'SubnetId': 'subnet-01e5b0f8e5be3bf01',
+                            'VpcId': 'vpc-062a43279040c9896',
+                            'InterfaceType': 'interface'
+                        }
+                    ],
+                    'RootDeviceName': '/dev/xvda',
+                    'RootDeviceType': 'ebs',
+                    'SecurityGroups':
+                    [
+                        {
+                            'GroupName': 'cloudhsm-cluster-2f2ynawbwz5-sg',
+                            'GroupId': 'sg-0778d7aa573ae2427'
+                        },
+                        {
+                            'GroupName': 'default',
+                            'GroupId': 'sg-0259648b4083884a5'
+                        }
+                    ],
+                    'SourceDestCheck': True,
+                    'StateReason':
+                    {
+                        'Code': 'Client.UserInitiatedShutdown',
+                        'Message': 'Client.UserInitiatedShutdown: User initiated shutdown'
+                    },
+                    'VirtualizationType': 'hvm',
+                    'CpuOptions':
+                    {
+                        'CoreCount': 1,
+                        'ThreadsPerCore': 1
+                    },
+                    'CapacityReservationSpecification':
+                    {
+                        'CapacityReservationPreference': 'open'
+                    },
+                    'HibernationOptions':
+                    {
+                        'Configured': False
+                    },
+                    'MetadataOptions':
+                    {
+                        'State': 'applied',
+                        'HttpTokens': 'optional',
+                        'HttpPutResponseHopLimit': 1,
+                        'HttpEndpoint': 'enabled'
+                    },
+                    'EnclaveOptions':
+                    {
+                        'Enabled': False
+                    }
+                }
+            ],
+            'OwnerId': '945793393231',
+            'ReservationId': 'r-0a28e490b4e1ccd0e'
+        }
+    ],
 }
