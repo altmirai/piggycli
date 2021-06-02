@@ -38,8 +38,3 @@ def cluster():
 @pytest.fixture
 def hsm():
     pass
-
-
-@pytest.fixture
-def instance():
-    pass

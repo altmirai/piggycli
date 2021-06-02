@@ -41,6 +41,3 @@ class CredentialsController:
                 'data': credentials.data
             }
         )
-
-    def destroy(self):
-        return

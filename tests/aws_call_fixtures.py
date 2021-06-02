@@ -1,5 +1,7 @@
 import tests.data as data
-import datetime
+from tests.mocks import instance
+from unittest.mock import patch
+import boto3
 
 import botocore.session
 from botocore.stub import Stubber, ANY
@@ -81,6 +83,12 @@ def describe_instances():
     )
 
     yield stubber, client
+
+
+@pytest.fixture
+def Mocked_Instance():
+    with patch('app.models.instance_model.Instance', return_value=instance, autospec=True) as mocked_instance:
+        yield mocked_instance
 
 
 @pytest.fixture

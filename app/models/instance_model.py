@@ -35,7 +35,6 @@ class Instance:
     def install_packages(self, ssh_key_file):
         outputs = ssh.install_packages(ip_address=self.public_ip_address,
                                        ssh_key_file=ssh_key_file)
-
         return True
 
     def start(self):
@@ -47,10 +46,3 @@ class Instance:
         instance = self.resource.Instance(self.id)
         resp = instance.stop()
         return resp
-
-    def update(self):
-
-        return
-
-    def destroy(self):
-        return False

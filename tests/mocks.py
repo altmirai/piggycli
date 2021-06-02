@@ -29,6 +29,9 @@ cluster.activate.return_value = True
 instance = Mock()
 instance.id = data.instance_id
 instance.public_ip_address = data.public_ip_address
+instance.state = 'running'
+instance.ssh_key_name == data.ssh_key_name
+
 
 hsm = Mock()
 hsm.id = data.hsm_id
