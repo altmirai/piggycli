@@ -34,3 +34,4 @@ def test_download_pem_file():
         ssh_key_file='/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files/cluster-2f2ynawbwz5/Piggy_SSH_Key_bdd3f8d5.pem',
         local_path=data.production_path
     )
+    breakpoint()

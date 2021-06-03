@@ -8,7 +8,6 @@ class PubKey:
         self.handle = handle
         self.private_key_handle = private_key_handle
         self.public_key_pem_file_name = public_key_pem_file_name
-        pass
 
     @classmethod
     def create(cls, ip_address, ssh_key_file, eni_ip, crypto_user_username, crypto_user_password, label):
