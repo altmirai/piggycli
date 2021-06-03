@@ -52,10 +52,10 @@ class SSH:
         except Exception as Error:
             raise Exception(Error.args[0])
 
-    def get(self, file):
+    def get(self, file, local_path):
         try:
             with SCPClient(self.client.get_transport()) as scp:
-                scp.get(file)
+                scp.get(file, local_path)
 
             return True
         except Exception as Error:
@@ -155,3 +155,26 @@ def configure_cloudhsm_client(ip_address, ssh_key_file, hsm_ip_address):
         return
     except Exception as Error:
         raise Exception(Error.args[0])
+
+
+def gen_ecc_key_pair(ip_address, ssh_key_file, eni_ip, crypto_user_username, crypto_user_password, key_label):
+    try:
+        ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+        ssh.connect()
+        output, error = ssh.run(
+            f'script gen-ecc-key-pair -eniip {eni_ip} -username {crypto_user_username} -password {crypto_user_password} -label {key_label}')
+        assert bool(error) is False, error
+        ssh.close()
+
+        return json.loads(output)
+
+    except Exception as Error:
+        raise Exception(Error.args[0])
+
+
+def download_file_from_instance(ip_address, ssh_key_file, file, local_path):
+    ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+    ssh.connect()
+    resp = ssh.get(file=file, local_path=local_path)
+    ssh.close()
+    return
