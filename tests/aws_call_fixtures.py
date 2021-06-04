@@ -91,13 +91,27 @@ def Mocked_Instance():
 
 
 @pytest.fixture
-def list_buckets():
+def list_buckets_true():
     client = botocore.session.get_session().create_client(
         's3', region_name=data.aws_region)
     stubber = Stubber(client)
     stubber.add_response(
         'list_buckets',
-        data.list_buckets_resp,
+        data.list_buckets_true_resp,
+        {}
+    )
+
+    yield stubber, client
+
+
+@pytest.fixture
+def list_buckets_false():
+    client = botocore.session.get_session().create_client(
+        's3', region_name=data.aws_region)
+    stubber = Stubber(client)
+    stubber.add_response(
+        'list_buckets',
+        data.list_buckets_false_resp,
         {}
     )
 

@@ -1,6 +1,7 @@
 from app.models.credentials_model import Credentials
 from app.models.cluster_model import Cluster
 from app.models.pub_key_model import PubKey
+from app.models.address_model import Address
 import tests.data as data
 from tests.mocks import tf
 import os
@@ -45,3 +46,14 @@ def pub_key():
         private_key_handle=data.private_key_handle
     )
     yield pub_key
+
+
+@pytest.fixture
+def address():
+    address = Address(
+        id=data.address_id,
+        pub_key_pem=data.pub_key_pem,
+        pub_key_handle=data.pub_key_handle,
+        private_key_handle=data.private_key_handle
+    )
+    yield address

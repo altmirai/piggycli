@@ -306,8 +306,22 @@ gen_ecc_key_pair_resp = {
     'status_code': 200
 }
 
-list_buckets_resp = {'Buckets': [], 'Owner': {
+list_buckets_false_resp = {'Buckets': [], 'Owner': {
     'ID': '6db94838fea6a8498fd800ac2ea3eea867a95870a8e8b263770a751e580c166e'}}
 
 create_bucket_resp = {
     'Location': f'http: //{cluster_id}-bucket.s3.amazonaws.com /'}
+
+list_buckets_true_resp = {
+    'Buckets':
+    [
+        {
+            'Name': 'cluster-lbtkdldygfh-bucket',
+                    'CreationDate': datetime.datetime(2021, 6, 4, 15, 31, 27, tzinfo=tzutc())
+        }
+    ],
+    'Owner':
+    {
+        'ID': '6db94838fea6a8498fd800ac2ea3eea867a95870a8e8b263770a751e580c166e'
+    }
+}

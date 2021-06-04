@@ -30,8 +30,11 @@ class AddressController:
 
         bucket = f"{self.credentials.data['cluster_id']}-bucket"
 
-        address.save(bucket=bucket, s3=s3,
-                     region=self.credentials.data['aws_region'])
+        assert address.save(
+            bucket=bucket,
+            s3=s3,
+            region=self.credentials.data['aws_region']
+        ), f"Failed to save address: {self.id} to bucket: {bucket}"
 
         return address
 
