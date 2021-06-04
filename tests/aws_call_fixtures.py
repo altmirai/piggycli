@@ -130,3 +130,31 @@ def aws_create_bucket():
     )
 
     yield stubber, client
+
+
+@pytest.fixture
+def put_object():
+    client = botocore.session.get_session().create_client(
+        's3', region_name=data.aws_region)
+    stubber = Stubber(client)
+    stubber.add_response(
+        'put_object',
+        data.put_object_resp,
+        {'Body': ANY, 'Bucket': ANY, 'Key': ANY}
+    )
+
+    yield stubber, client
+
+
+@pytest.fixture
+def list_objects():
+    client = botocore.session.get_session().create_client(
+        's3', region_name=data.aws_region)
+    stubber = Stubber(client)
+    stubber.add_response(
+        'list_objects',
+        data.list_objects_resp,
+        {'Bucket': ANY}
+    )
+
+    yield stubber, client

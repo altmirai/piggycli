@@ -9,18 +9,23 @@ class S3:
         resp = s3.list_objects(Bucket=bucket)
         keys = resp['Contents']
         for key in keys:
-            resp = s3.get_object(Bucket=bucket, Key=key['Key'])
-            resp_data_json = resp['Body'].read().decode()
-            resp_data = json.loads(resp_data_json)
-            address = cls(
-                id=key['Key'],
-                pub_key_pem=resp_data['pub_key_pem'],
-                pub_key_handle=resp_data['pub_key_handle'],
-                private_key_handle=resp_data['private_key_handle']
-            )
+            address = cls.find(bucket=bucket, s3=s3, id=key['Key'])
             addresses.append(address)
+        return addresses
 
-        breakpoint()
+    @classmethod
+    def find(cls, bucket, s3, id):
+        resp = s3.get_object(Bucket=bucket, Key=id)
+        resp_data_json = resp['Body'].read().decode()
+        resp_data = json.loads(resp_data_json)
+        address = cls(
+            id=id,
+            pub_key_pem=resp_data['pub_key_pem'],
+            pub_key_handle=resp_data['pub_key_handle'],
+            private_key_handle=resp_data['private_key_handle']
+        )
+
+        return address
 
     def save(self, bucket, s3, region):
         if bucket_exists(bucket=bucket, s3=s3) is False:
@@ -41,14 +46,16 @@ class S3:
             Bucket=bucket,
             Key=key
         )
-        breakpoint()
 
-        pass
+        assert resp['ResponseMetadata'][
+            'HTTPStatusCode'] == 200, f'Failed to save address: {self.id} to bucket: {bucket}'
+
+        return self.id
 
     def update(self):
         pass
 
-    def read(self):
+    def read(self, bucket, s3):
         pass
 
     def delete(self):

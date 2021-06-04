@@ -3,6 +3,7 @@ import botocore.session
 import os
 import datetime
 from dateutil.tz import tzutc
+from unittest.mock import mock_open
 
 aws_region = 'us-east-2'
 
@@ -324,4 +325,58 @@ list_buckets_true_resp = {
     {
         'ID': '6db94838fea6a8498fd800ac2ea3eea867a95870a8e8b263770a751e580c166e'
     }
+}
+
+
+list_objects_resp = {
+    'Contents':
+    [
+        {
+            'Key': 'addr-2ddf60b68546',
+            'LastModified': datetime.datetime(2021, 6, 4, 16, 52, 31, tzinfo=tzutc()),
+            'ETag': '"bde5d79445637dfa506e3de03d137c32"',
+            'Size': 308,
+            'StorageClass':
+            'STANDARD',
+            'Owner':
+            {
+                'ID': '6db94838fea6a8498fd800ac2ea3eea867a95870a8e8b263770a751e580c166e'
+            }
+        }
+    ],
+    'Name': 'cluster-lbtkdldygfh-bucket',
+    'Prefix': '',
+    'MaxKeys': 1000,
+    'EncodingType': 'url'
+}
+
+# get_object_resp = {
+#     'AcceptRanges': 'bytes',
+#     'LastModified': datetime.datetime(2021, 6, 4, 16, 52, 31, tzinfo=tzutc()),
+#     'ContentLength': 308,
+#     'ETag': '"bde5d79445637dfa506e3de03d137c32"',
+#             'ContentType': 'binary/octet-stream',
+#             'Metadata': {},
+#             'Body': < botocore.response.StreamingBody object at 0x1095e9100 >
+# }
+
+
+put_object_resp = {
+    'ResponseMetadata':
+    {
+        'RequestId': 'XC168DY8X89V84N7',
+        'HostId': '05BOjg6ZL25KfjxZOCbHso7oXzgCAgkHuOdt+PcV1MQmPM/QmaXQPIcJg3+loo8o4ein4P7GmAI=',
+        'HTTPStatusCode': 200,
+        'HTTPHeaders':
+        {
+            'x-amz-id-2': '05BOjg6ZL25KfjxZOCbHso7oXzgCAgkHuOdt+PcV1MQmPM/QmaXQPIcJg3+loo8o4ein4P7GmAI=',
+            'x-amz-request-id': 'XC168DY8X89V84N7',
+            'date': 'Fri, 04 Jun 2021 19:55:51 GMT',
+            'etag': '"bde5d79445637dfa506e3de03d137c32"',
+            'server': 'AmazonS3',
+            'content-length': '0'
+        },
+            'RetryAttempts': 0
+    },
+    'ETag': '"bde5d79445637dfa506e3de03d137c32"'
 }
