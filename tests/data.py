@@ -4,9 +4,12 @@ import os
 import datetime
 from dateutil.tz import tzutc
 
+aws_region = 'us-east-2'
+
 resource = boto3.resource('ec2')
 ec2 = botocore.session.get_session().create_client('ec2')
 cloudhsmv2 = botocore.session.get_session().create_client('cloudhsmv2')
+s3 = botocore.session.get_session().create_client('s3', region_name=aws_region)
 
 test_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files'
 production_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files'
@@ -16,7 +19,6 @@ credentials_file_path = os.path.join(
     'credentials.json'
 )
 
-aws_region = 'us-east-2'
 cluster_id = 'cluster-lbtkdldygfh'
 instance_id = 'i-051bdb2ae099024a5'
 vpc_id = 'vpc-06f745fe81ec3c1a8'
@@ -52,10 +54,20 @@ pem_csr = '-----BEGIN CERTIFICATE REQUEST-----\nMIIC0TCCAbkCAQAwgYsxRDAJBgNVBAYT
 pem_hsm_cert = b'-----BEGIN CERTIFICATE-----\nMIIDVTCCAj2gAwIBAgIUGVpAlXDcW6bULCcyAPeUMgY2Hf4wDQYJKoZIhvcNAQEL\nBQAwPTELMAkGA1UEBhMCVVMxCjAIBgNVBAgMAS4xCjAIBgNVBAcMAS4xCjAIBgNV\nBAoMAS4xCjAIBgNVBAMMAS4wHhcNMjEwNTIzMTcwNDQ2WhcNMzEwNTIzMTgwNDQ2\nWjCBizFEMAkGA1UEBhMCVVMwCQYDVQQIDAJDQTANBgNVBAoMBkNhdml1bTANBgNV\nBAsMBk4zRklQUzAOBgNVBAcMB1Nhbkpvc2UxQzBBBgNVBAMMOkhTTTpCNEYxRThC\nNjc5Njc1ODYzRjhEQjMyMTExMzY0QjM6UEFSVE46MTMsIGZvciBGSVBTIG1vZGUw\nggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC8Nj0hmVFOFRDYl9z4lY8L\nXlaplsxEqIRtr4UgJzCej6LNoPNr6vOmq1pTRDlRVgY57i8S1WPGyPeF2Fdzasrn\ne+HDgR2YqiM/MDLcX9MkbNK/MiU9QJ1Yu1sqU0SSD9Ua7VhywxW9C/IYVK6yPyJ1\nZPgO+xnE+4TCJcTioQ+bIHW6jaUohhZ+6U/1CtF2+esEX/MGZc5uWDfMd/UpDxth\nZbwtz8MZxGdG88F8O9g1LoMk+syIz5B6qEzkh6C7s6VM5ORXvZ2ZoypO65Y4atvo\nsIOvuFYZ+MATfnXsm3aJrZsHxgTlZ1riZQESalWXkqGjnjtLpLEyIKFfdTdUIdtX\nAgMBAAEwDQYJKoZIhvcNAQELBQADggEBAKAogyiwCBLFzu7k0i42NQ4AZbYkQg1k\nS6e7N3oOVwG/BEaeyt47Uc99g0cSnhtvet/Mlt4GURPc66bZY1EoHQ0N/UFF3BCB\nk4Gumu6BToIogAjiFmKLDVgeWrCtJlHxdYLe6lyiIEbGuuMBOZ6lmLxRS8Fj6/as\nblxkvdbrVjKutFJPwUI46gmGvaSP+x1lV3KyJcRgG2Q4Sw0hctMFm88jjZZ9mK5F\n3am64/bU9jIa4edirjv5fXhgQcxSlLMA1ltQtgQBypnHVUlgCAG28n8YLjoS2lQO\nbiwa/jYdJFKwyZ08Mv23ixNeACb8PNT61iHsqa6Xq6igYUwaqwIFH2Y=\n-----END CERTIFICATE-----\n'
 pem_ca_cert = b'-----BEGIN CERTIFICATE-----\nMIIDCDCCAfCgAwIBAgIBATANBgkqhkiG9w0BAQsFADA9MQswCQYDVQQGEwJVUzEK\nMAgGA1UECAwBLjEKMAgGA1UEBwwBLjEKMAgGA1UECgwBLjEKMAgGA1UEAwwBLjAe\nFw0yMTA1MjMxNzA0NDZaFw0zMTA1MjMxODA0NDZaMD0xCzAJBgNVBAYTAlVTMQow\nCAYDVQQIDAEuMQowCAYDVQQHDAEuMQowCAYDVQQKDAEuMQowCAYDVQQDDAEuMIIB\nIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxOECV3e8foFfXoqsWZJ+Wwo4\nRQFwOdQvWyH/dGWadbN3G/KMxOxZIcpAL0z/UmpG9hiqOem6OdmQyzdTI6ZfUCkn\nKXEinFnS+ZpA6zetrfVl5f7h3fyJAu8Da2o9eaR8BMn2ATg0QRv6aWpwuMPlIQ2h\ni4Fp0zmp2Xp3aO5wNoY9Thw6/eM1MWk0WIDvkmzEVqKhCpvGCwO0bD+NWMYlhZxM\nw9PTSVpMS5zq0ugvWP9I6vO4ZEm422e6MzdvED4LAD1FAS519I8Y+VKWVP5Wrr/2\nL2ovK6ml7mLQi9Bs0PU9HuYqh1tX8Vj5658dDu6L8t1IBR7gb8mrt2zH5fyqnwID\nAQABoxMwETAPBgNVHRMBAf8EBTADAQH/MA0GCSqGSIb3DQEBCwUAA4IBAQBtWL/g\nVoclYzrJAeAkcMPewPD5+4O3UfszRvL4EcProx1/XPsvVIjRQ4oBDrCWlmiIxq02\n97JzucooTsyVcJycR4ppoEhW/1XXHyrbBE8nVAcS0x+eQpwJQ9OtW0NM+qAaEjZd\nU/vqeYZwmeSs4aHXhPhifeazrzzaZSVhlHs2rEW1/taxIxCFYT6SipJDLqVlKt6f\nksXtdn8BOcYy1Q6ybXpN+g9D3EnM/X4uHyt3pJ0y14KZHBDd9oYwpx2SLc2SGneG\nZb5zsWluSmrtQS1U8TgT9PrgcTZGwQcurka3yzdb84IkZ0ZSJGn0sZ1TdHWeQB1j\nbix3cnyr6DF7ZD5n\n-----END CERTIFICATE-----\n'
 
-label = 'test1'
-handle = '1310926'
-private_key_handle = '1310927'
-public_key_pem_file_name = 'pubKey1310926.pem'
+# PubKey
+label = 'addr-2ddf60b68546'
+handle = '1835230'
+private_key_handle = '1835243'
+pem = '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeLOShJhDaDhwDpwrLA56bLLPlBe22JCe\no5D6eKR3u1P5OE7FTYs32UKuwLXKy45A1PWoqFBt4r36/WqH1qjXwA==\n-----END PUBLIC KEY-----\n'
+
+# Address
+address_id = 'addr-2ddf60b68546'
+pub_key_pem = '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeLOShJhDaDhwDpwrLA56bLLPlBe22JCe\no5D6eKR3u1P5OE7FTYs32UKuwLXKy45A1PWoqFBt4r36/WqH1qjXwA==\n-----END PUBLIC KEY-----\n'
+pub_key_handle = '1835230'
+address = '13t19fyUcjneGiLCYmVKzH78gMzZDXYyED'
+
+# Bucket
+bucket_name = f'{cluster_id}-bucket'
 
 create_key_pair_resp = {
     'KeyFingerprint': KeyFingerprint,
@@ -287,9 +299,15 @@ gen_ecc_key_pair_resp = {
     'data':
     {
         'label': label,
-        'public_key_handle': handle,
+        'handle': handle,
         'private_key_handle': private_key_handle,
-        'public_key_pem_file_name': public_key_pem_file_name
+        'pem': pem
     },
     'status_code': 200
 }
+
+list_buckets_resp = {'Buckets': [], 'Owner': {
+    'ID': '6db94838fea6a8498fd800ac2ea3eea867a95870a8e8b263770a751e580c166e'}}
+
+create_bucket_resp = {
+    'Location': f'http: //{cluster_id}-bucket.s3.amazonaws.com /'}

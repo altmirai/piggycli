@@ -10,6 +10,8 @@ piggy-cli = {editable = true, path = "."}
 boto3 = "*"
 paramiko = "*"
 scp = "*"
+base58 = "*"
+ecdsa = "*"
 
 [dev-packages]
 autopep8 = "*"

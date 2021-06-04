@@ -1,7 +1,6 @@
 import tests.data as data
 from tests.mocks import instance
 from unittest.mock import patch
-import boto3
 
 import botocore.session
 from botocore.stub import Stubber, ANY
@@ -92,16 +91,28 @@ def Mocked_Instance():
 
 
 @pytest.fixture
-def describe_key_pairs():
-    pass
+def list_buckets():
+    client = botocore.session.get_session().create_client(
+        's3', region_name=data.aws_region)
+    stubber = Stubber(client)
+    stubber.add_response(
+        'list_buckets',
+        data.list_buckets_resp,
+        {}
+    )
 
-# @ pytest.fixture
-# def ssh_key_ec2_test_all():
-#     client = botocore.session.get_session().create_client('ec2')
-#     with Stubber(client) as stubber:
-#         stubber.add_response(
-#             'describe_key_pairs',
-#             t.ssh_key_describe_resp,
-#             {}
-#         )
-#         yield client
+    yield stubber, client
+
+
+@pytest.fixture
+def aws_create_bucket():
+    client = botocore.session.get_session().create_client(
+        's3', region_name=data.aws_region)
+    stubber = Stubber(client)
+    stubber.add_response(
+        'create_bucket',
+        data.create_bucket_resp,
+        {'Bucket': ANY, 'CreateBucketConfiguration': ANY}
+    )
+
+    yield stubber, client

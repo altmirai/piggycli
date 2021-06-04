@@ -3,11 +3,11 @@ import app.utilities.ssh as ssh
 
 class PubKey:
 
-    def __init__(self, label, handle, private_key_handle, public_key_pem_file_name):
+    def __init__(self, label, handle, pem, private_key_handle):
         self.label = label
         self.handle = handle
+        self.pem = pem
         self.private_key_handle = private_key_handle
-        self.public_key_pem_file_name = public_key_pem_file_name
 
     @classmethod
     def create(cls, ip_address, ssh_key_file, eni_ip, crypto_user_username, crypto_user_password, label):
@@ -22,20 +22,11 @@ class PubKey:
         )
         if resp['status_code'] != 200:
             breakpoint()
-
         return cls(
             label=resp['data']['label'],
-            handle=resp['data']['public_key_handle'],
-            private_key_handle=resp['data']['private_key_handle'],
-            public_key_pem_file_name=resp['data']['public_key_pem_file_name']
-        )
-
-    def download_pem_file(self, ip_address, ssh_key_file, local_path):
-        resp = ssh.download_file_from_instance(
-            ip_address=ip_address,
-            ssh_key_file=ssh_key_file,
-            file=self.public_key_pem_file_name,
-            local_path=local_path
+            pem=resp['data']['pem'],
+            handle=resp['data']['handle'],
+            private_key_handle=resp['data']['private_key_handle']
         )
 
     def read(self):

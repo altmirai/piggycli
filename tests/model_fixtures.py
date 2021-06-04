@@ -1,5 +1,6 @@
 from app.models.credentials_model import Credentials
 from app.models.cluster_model import Cluster
+from app.models.pub_key_model import PubKey
 import tests.data as data
 from tests.mocks import tf
 import os
@@ -36,5 +37,11 @@ def cluster():
 
 
 @pytest.fixture
-def hsm():
-    pass
+def pub_key():
+    pub_key = PubKey(
+        label=data.label,
+        handle=data.handle,
+        pem=data.pem,
+        private_key_handle=data.private_key_handle
+    )
+    yield pub_key

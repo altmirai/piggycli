@@ -1,6 +1,9 @@
+from app.models.instance_model import Instance
+from app.models.cluster_model import Cluster
 from app.controllers.setup_controller import Setup
 from app.controllers.credentials_controller import CredentialsController
 from app.controllers.status_controller import StatusController
+from app.controllers.addresses_controller import AddressController
 import boto3
 import click
 import json
@@ -225,6 +228,62 @@ def status(config, action):
         else:
             resp = status.show()
             click.echo(resp)
+    else:
+        no_credentials_found()
+
+
+@piggy.command()
+@pass_config
+def create_address(config):
+    if bool(config.creds_exists):
+        credentials = CredentialsController().create_from_file(
+            credentials_file_path=config.credentials_file_path)
+
+        cloudhsmv2 = boto3.client(
+            'cloudhsmv2',
+            aws_access_key_id=credentials.data['aws_access_key_id'],
+            aws_secret_access_key=credentials.data['aws_secret_access_key']
+        )
+
+        s3 = boto3.client(
+            's3',
+            region_name=credentials.data['aws_region'],
+            aws_access_key_id=credentials.data['aws_access_key_id'],
+            aws_secret_access_key=credentials.data['aws_secret_access_key']
+        )
+
+        resource = boto3.resource(
+            'ec2',
+            aws_access_key_id=credentials.data['aws_access_key_id'],
+            aws_secret_access_key=credentials.data['aws_secret_access_key']
+        )
+
+        instance = Instance(
+            id=credentials.data['instance_id'],
+            resource=resource
+        )
+
+        cluster = Cluster(
+            id=credentials.data['cluster_id'],
+            client=cloudhsmv2
+        )
+
+        ssh_key_file = os.path.join(
+            credentials.path,
+            cluster.id,
+            f"{credentials.data['ssh_key_name']}.pem"
+        )
+
+        controller = AddressController(credentials=credentials)
+        address = controller.create(
+            ip_address=instance.public_ip_address,
+            ssh_key_file=ssh_key_file,
+            eni_ip=cluster.hsms[0]['EniIp'],
+            s3=s3
+        )
+
+        click.echo(address.__dict__)
+
     else:
         no_credentials_found()
 
