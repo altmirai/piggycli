@@ -2,6 +2,7 @@ from app.models.s3_model import S3
 import hashlib
 from base58 import b58encode_check
 from ecdsa import VerifyingKey
+import json
 
 
 class Address(S3):

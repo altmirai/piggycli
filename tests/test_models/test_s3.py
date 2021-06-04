@@ -1,4 +1,5 @@
 from app.models.s3_model import S3, bucket_exists, create_bucket
+from app.models.address_model import Address
 import tests.data as data
 import boto3
 
@@ -31,6 +32,10 @@ def test_create_bucket(aws_create_bucket):
     assert resp == data.create_bucket_resp['Location']
 
 
-def test_address_save(address):
+# def test_address_save(address):
+#     s3 = boto3.client('s3', region_name=data.aws_region)
+#     resp = address.save(bucket=data.bucket_name, s3=s3, region=data.aws_region)
+
+def test_all():
     s3 = boto3.client('s3', region_name=data.aws_region)
-    resp = address.save(bucket=data.bucket_name, s3=s3, region=data.aws_region)
+    resp = Address.all(bucket=data.bucket_name, s3=s3)
