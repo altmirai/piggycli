@@ -1,9 +1,13 @@
 import boto3
 import botocore.session
+from botocore.response import StreamingBody
+import io
+import json
 import os
 import datetime
+from botocore.vendored.six import StringIO
 from dateutil.tz import tzutc
-from unittest.mock import mock_open
+from unittest.mock import Mock
 
 aws_region = 'us-east-2'
 
@@ -350,15 +354,26 @@ list_objects_resp = {
     'EncodingType': 'url'
 }
 
-# get_object_resp = {
-#     'AcceptRanges': 'bytes',
-#     'LastModified': datetime.datetime(2021, 6, 4, 16, 52, 31, tzinfo=tzutc()),
-#     'ContentLength': 308,
-#     'ETag': '"bde5d79445637dfa506e3de03d137c32"',
-#             'ContentType': 'binary/octet-stream',
-#             'Metadata': {},
-#             'Body': < botocore.response.StreamingBody object at 0x1095e9100 >
-# }
+obj_data = {
+    'pub_key_handle': pub_key_handle,
+    'private_key_handle': private_key_handle,
+    'pub_key_pem': pub_key_pem,
+    'address': address
+}
+
+body_encoded = json.dumps(obj_data).encode('UTF-8')
+
+body = StreamingBody(io.BytesIO(body_encoded), len(body_encoded))
+
+get_object_resp = {
+    'AcceptRanges': 'bytes',
+    'LastModified': datetime.datetime(2021, 6, 4, 16, 52, 31, tzinfo=tzutc()),
+    'ContentLength': 308,
+    'ETag': '"bde5d79445637dfa506e3de03d137c32"',
+            'ContentType': 'binary/octet-stream',
+            'Metadata': {},
+            'Body': body
+}
 
 
 put_object_resp = {

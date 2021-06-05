@@ -46,10 +46,6 @@ def test_address_save(put_object, address):
     assert resp == address.id
 
 
-# def test_real_save(address):
-#     s3 = boto3.client('s3', region_name=data.aws_region)
-#     resp = address.save(bucket=data.bucket_name, s3=s3, region=data.aws_region)
-
 def test_all(list_objects, address):
     stubber, client = list_objects
     with stubber:
@@ -59,6 +55,12 @@ def test_all(list_objects, address):
     assert addresses[0].id == address.id
 
 
-def test_find():
-    s3 = boto3.client('s3', region_name=data.aws_region)
-    address = Address.find(bucket=data.bucket_name, s3=s3, id=data.address_id)
+def test_find(get_object):
+    stubber, client = get_object
+    with stubber:
+        address = Address.find(
+            bucket=data.bucket_name,
+            s3=client, id=data.address_id
+        )
+
+    assert address.address == data.address

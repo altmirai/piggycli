@@ -158,3 +158,17 @@ def list_objects():
     )
 
     yield stubber, client
+
+
+@pytest.fixture
+def get_object():
+    client = botocore.session.get_session().create_client(
+        's3', region_name=data.aws_region)
+    stubber = Stubber(client)
+    stubber.add_response(
+        'get_object',
+        data.get_object_resp,
+        {'Bucket': ANY, 'Key': ANY}
+    )
+
+    yield stubber, client
