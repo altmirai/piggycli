@@ -1,5 +1,3 @@
-from app.models.instance_model import Instance
-from app.models.cluster_model import Cluster
 from app.controllers.setup_controller import Setup
 from app.controllers.credentials_controller import CredentialsController
 from app.controllers.status_controller import StatusController
@@ -59,6 +57,17 @@ class NotRequiredIf(click.Option):
                 self.required = False
 
         return super(NotRequiredIf, self).handle_parse_result(ctx, opts, args)
+
+
+def no_credentials_found():
+    click.echo('')
+    click.echo(
+        'No credentials file found.'
+    )
+    click.echo('If you have already setup your AWS infrastructure, run piggy credentials set -file <your config file> or piggy credentials create.')
+    click.echo(
+        'If you have not set up your AWS infrastructre, run piggy setup.')
+    click.echo('')
 
 
 @click.group()
@@ -232,68 +241,57 @@ def status(config, action):
         no_credentials_found()
 
 
-@piggy.command()
+@piggy.group()
+def address():
+    pass
+
+
+@address.command()
 @pass_config
-def create_address(config):
+def list(config):
     if bool(config.creds_exists):
-        credentials = CredentialsController().create_from_file(
-            credentials_file_path=config.credentials_file_path)
-
-        cloudhsmv2 = boto3.client(
-            'cloudhsmv2',
-            aws_access_key_id=credentials.data['aws_access_key_id'],
-            aws_secret_access_key=credentials.data['aws_secret_access_key']
-        )
-
-        s3 = boto3.client(
-            's3',
-            region_name=credentials.data['aws_region'],
-            aws_access_key_id=credentials.data['aws_access_key_id'],
-            aws_secret_access_key=credentials.data['aws_secret_access_key']
-        )
-
-        resource = boto3.resource(
-            'ec2',
-            aws_access_key_id=credentials.data['aws_access_key_id'],
-            aws_secret_access_key=credentials.data['aws_secret_access_key']
-        )
-
-        instance = Instance(
-            id=credentials.data['instance_id'],
-            resource=resource
-        )
-
-        cluster = Cluster(
-            id=credentials.data['cluster_id'],
-            client=cloudhsmv2
-        )
-
-        ssh_key_file = os.path.join(
-            credentials.path,
-            cluster.id,
-            f"{credentials.data['ssh_key_name']}.pem"
-        )
-
-        controller = AddressController(credentials=credentials)
-        address = controller.create(
-            ip_address=instance.public_ip_address,
-            ssh_key_file=ssh_key_file,
-            eni_ip=cluster.hsms[0]['EniIp'],
-            s3=s3
-        )
-
-        click.echo(address.__dict__)
-
+        controller = AddressController(config=config)
+        resp = controller.index()
+        for address in resp['data']['addresses']:
+            click.echo('')
+            click.echo(f"ID: {address.id}, Address: {address.address} ")
+            click.echo('')
     else:
         no_credentials_found()
 
 
-def no_credentials_found():
-    click.echo('')
-    click.echo(
-        'No credentials file found.'
-    )
-    click.echo('If you have already setup your AWS infrastructure, run piggy credentials set -file <your config file> or piggy credentials create.')
-    click.echo(
-        'If you have not set up your AWS infrastructre, run piggy setup.')
-    click.echo('')
+@address.command()
+@pass_config
+def create(config):
+    if bool(config.creds_exists):
+        controller = AddressController(config=config)
+        resp = controller.create()
+        address = resp['data']['address']
+        click.echo('')
+        click.echo(f'ID: {address.id}')
+        click.echo(f'Address: {address.address}')
+        click.echo(f'Public Key Handle: {address.pub_key_handle}')
+        click.echo(f'Private Key Handle: {address.private_key_handle}')
+        click.echo('Public Key PEM:')
+        click.echo(address.pub_key_pem)
+    else:
+        no_credentials_found()
+
+
+@address.command()
+@click.option('-id', 'id', prompt='Address ID', required=True)
+@pass_config
+def show(config, id):
+    if bool(config.creds_exists):
+        controller = AddressController(config=config)
+        resp = controller.show(id=id)
+        address = resp['data']['address']
+        click.echo('')
+        click.echo(f'ID: {address.id}')
+        click.echo(f'Address: {address.address}')
+        click.echo(f'Public Key Handle: {address.pub_key_handle}')
+        click.echo(f'Private Key Handle: {address.private_key_handle}')
+        click.echo('Public Key PEM:')
+        click.echo(address.pub_key_pem)
+    else:
+        no_credentials_found()

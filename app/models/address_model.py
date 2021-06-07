@@ -52,7 +52,6 @@ class Address():
     def save(self, bucket, s3, region):
         if bucket_exists(bucket=bucket, s3=s3) is False:
             create_bucket(bucket=bucket, s3=s3, region=region)
-
         key = self.id
         data_json = json.dumps(
             {
@@ -68,10 +67,8 @@ class Address():
             Bucket=bucket,
             Key=key
         )
-
         assert resp['ResponseMetadata'][
             'HTTPStatusCode'] == 200, f'Failed to save address: {self.id} to bucket: {bucket}'
-
         return self.id
 
 
