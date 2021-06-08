@@ -17,7 +17,7 @@ class AddressController:
             credentials_file_path=config.credentials_file_path)
 
     def index(self):
-        addresses = Address.all(bucket=self.bucket_nameket, s3=self.s3)
+        addresses = Address.all(bucket=self.bucket_name, s3=self.s3)
         return {'data': {'addresses': addresses}, 'http_status_code': 200}
 
     def create(self):
@@ -89,6 +89,8 @@ class AddressController:
         cluster = Cluster(
             id=self.credentials.data['cluster_id'], client=self.cloudhsmv2)
         hsms = cluster.hsms
+        if bool(hsms) is False:
+            raise NoHSMFoundError(f'Cluster: {cluster.id} has no HSMs')
         eni_ip = hsms[0]['EniIp']
         return eni_ip
 
@@ -96,6 +98,10 @@ class AddressController:
     def bucket_name(self):
         bucket_name = f"{self.credentials.data['cluster_id']}-bucket"
         return bucket_name
+
+
+class NoHSMFoundError(Exception):
+    pass
 
 
 class SSHKeyFileNotFoundError(Exception):

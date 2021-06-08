@@ -23,6 +23,18 @@ cluster = Mock()
 cluster.id = data.cluster_id
 cluster.azs = data.azs
 cluster.csr = data.pem_csr
+cluster.hsms = [
+    {
+        'AvailabilityZone': 'us-east-2a',
+        'ClusterId': data.cluster_id,
+        'SubnetId': 'subnet-03fce2972dfdfe9b8',
+                    'EniId': 'eni-08ff8a68aae5933c1',
+                    'EniIp': data.eni_ip,
+                    'HsmId': data.hsm_id,
+                    'State': 'ACTIVE',
+                    'StateMessage': 'HSM created.'
+    }
+]
 cluster.initialize.return_value = True
 cluster.activate.return_value = True
 
