@@ -336,7 +336,7 @@ list_objects_resp = {
     'Contents':
     [
         {
-            'Key': 'addr-2ddf60b68546',
+            'Key': address_id,
             'LastModified': datetime.datetime(2021, 6, 4, 16, 52, 31, tzinfo=tzutc()),
             'ETag': '"bde5d79445637dfa506e3de03d137c32"',
             'Size': 308,
@@ -395,3 +395,13 @@ put_object_resp = {
     },
     'ETag': '"bde5d79445637dfa506e3de03d137c32"'
 }
+
+address_list = [
+    {
+        'id': 'addr-2f8558248c33',
+        'pub_key_pem': '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEEEYV4CBaW1Jc9COEwA7fGRgwAYJBpErv\nNT/OSW8sjgNACFj+Q0wy+rkWNlA0nZzIXi/N62dcCoXcs0W+BE9dHg==\n-----END PUBLIC KEY-----\n',
+        'pub_key_handle': '2359320',
+        'private_key_handle': '2359319',
+
+    }
+]

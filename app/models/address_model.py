@@ -44,11 +44,6 @@ class Address():
             private_key_handle=pub_key.private_key_handle,
         )
 
-    @property
-    def address(self):
-        p2pkh = P2PKH(pem=self.pub_key_pem)
-        return p2pkh.address
-
     def save(self, bucket, s3, region):
         if bucket_exists(bucket=bucket, s3=s3) is False:
             create_bucket(bucket=bucket, s3=s3, region=region)
@@ -70,6 +65,11 @@ class Address():
         assert resp['ResponseMetadata'][
             'HTTPStatusCode'] == 200, f'Failed to save address: {self.id} to bucket: {bucket}'
         return self.id
+
+    @property
+    def address(self):
+        p2pkh = P2PKH(pem=self.pub_key_pem)
+        return p2pkh.address
 
 
 class P2PKH:

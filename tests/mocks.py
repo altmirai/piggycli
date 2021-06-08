@@ -67,3 +67,11 @@ pub_key.label = data.label
 pub_key.handle = data.handle
 pub_key.pem = data.pem
 pub_key.private_key_handle = data.private_key_handle
+
+address = Mock()
+address.id = data.address_id
+address.pub_key_handle = data.pub_key_handle
+address.private_key_handle = data.private_key_handle
+address.pub_key_pem = data.pub_key_pem
+address.address = data.address
+address.save.return_value = True
