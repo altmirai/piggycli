@@ -12,6 +12,7 @@ paramiko = "*"
 scp = "*"
 base58 = "*"
 ecdsa = "*"
+requests = "*"
 
 [dev-packages]
 autopep8 = "*"
