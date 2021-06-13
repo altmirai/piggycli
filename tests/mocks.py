@@ -81,3 +81,7 @@ address.save.return_value = True
 address_controller = Mock()
 address_controller.index.return_value = {
     'data': {'addresses': [address], 'http_status_code': 200}}
+address_controller.create.return_value = {
+    'data': {'address': address, 'http_status_code': 200}}
+address_controller.show.return_value = {
+    'data': {'address': address, 'http_status_code': 200}}

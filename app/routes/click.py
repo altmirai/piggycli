@@ -276,7 +276,7 @@ def create(config):
         click.echo('')
         click.echo(f'public_key_handle: {address.pub_key_handle}')
         click.echo(f'private_key_handle: {address.private_key_handle}')
-        click.echo('public_key_pem:')
+        click.echo('public_key_pem: ')
         click.echo(address.pub_key_pem)
     else:
         no_credentials_found()
@@ -291,14 +291,14 @@ def show(config, id):
         resp = controller.show(id=id)
         address = resp['data']['address']
         click.echo('')
-        click.echo(f'ID: {address.id}')
-        click.echo(f'Address: {address.address}')
-        click.echo(f'Confirmed_Balance(SAT): {address.confirmed_balance}')
-        click.echo(f'Spent: {address.spent}')
+        click.echo(f'id: {address.id}')
+        click.echo(f'address: {address.address}')
+        click.echo(f'confirmed_balance: {address.confirmed_balance}')
+        click.echo(f'spent: {address.spent}')
         click.echo('')
         click.echo(f'public_key_handle: {address.pub_key_handle}')
         click.echo(f'private_key_handle: {address.private_key_handle}')
-        click.echo('public_key_pem:')
+        click.echo('public_key_pem: ')
         click.echo(address.pub_key_pem)
     else:
         no_credentials_found()
