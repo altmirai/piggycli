@@ -74,4 +74,10 @@ address.pub_key_handle = data.pub_key_handle
 address.private_key_handle = data.private_key_handle
 address.pub_key_pem = data.pub_key_pem
 address.address = data.address
+address.confirmed_balance = data.confirmed_balance
+address.spent = data.spent
 address.save.return_value = True
+
+address_controller = Mock()
+address_controller.index.return_value = {
+    'data': {'addresses': [address], 'http_status_code': 200}}

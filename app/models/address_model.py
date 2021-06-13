@@ -70,13 +70,18 @@ class Address():
 
     @property
     def address(self):
-        p2pkh = P2PKH(pem=self.pub_key_pem)
-        return p2pkh.address
+        address = P2PKH(pem=self.pub_key_pem)
+        return address.address
 
     @property
     def confirmed_balance(self):
-        p2pkh = P2PKH(pem=self.pub_key_pem)
-        return p2pkh.confirmed_balance
+        address = P2PKH(pem=self.pub_key_pem)
+        return address.confirmed_balance
+
+    @property
+    def spent(self):
+        address = P2PKH(pem=self.pub_key_pem)
+        return address.spent
 
 
 def bucket_exists(bucket, s3):

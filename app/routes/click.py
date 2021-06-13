@@ -254,7 +254,8 @@ def list(config):
         resp = controller.index()
         for address in resp['data']['addresses']:
             click.echo('')
-            click.echo(f"ID: {address.id}, Address: {address.address} ")
+            click.echo(
+                f"id: {address.id}, address: {address.address}, confirmed_balance: {address.confirmed_balance}, spent: {address.spent}")
             click.echo('')
     else:
         no_credentials_found()
@@ -268,11 +269,14 @@ def create(config):
         resp = controller.create()
         address = resp['data']['address']
         click.echo('')
-        click.echo(f'ID: {address.id}')
-        click.echo(f'Address: {address.address}')
-        click.echo(f'Public Key Handle: {address.pub_key_handle}')
-        click.echo(f'Private Key Handle: {address.private_key_handle}')
-        click.echo('Public Key PEM:')
+        click.echo(f'id: {address.id}')
+        click.echo(f'address: {address.address}')
+        click.echo(f'confirmed_balance: {address.confirmed_balance}')
+        click.echo(f'spent: {address.spent}')
+        click.echo('')
+        click.echo(f'public_key_handle: {address.pub_key_handle}')
+        click.echo(f'private_key_handle: {address.private_key_handle}')
+        click.echo('public_key_pem:')
         click.echo(address.pub_key_pem)
     else:
         no_credentials_found()
@@ -289,9 +293,12 @@ def show(config, id):
         click.echo('')
         click.echo(f'ID: {address.id}')
         click.echo(f'Address: {address.address}')
-        click.echo(f'Public Key Handle: {address.pub_key_handle}')
-        click.echo(f'Private Key Handle: {address.private_key_handle}')
-        click.echo('Public Key PEM:')
+        click.echo(f'Confirmed_Balance(SAT): {address.confirmed_balance}')
+        click.echo(f'Spent: {address.spent}')
+        click.echo('')
+        click.echo(f'public_key_handle: {address.pub_key_handle}')
+        click.echo(f'private_key_handle: {address.private_key_handle}')
+        click.echo('public_key_pem:')
         click.echo(address.pub_key_pem)
     else:
         no_credentials_found()

@@ -34,3 +34,8 @@ class P2PKH:
     def confirmed_balance(self):
         explorer = Explorer(address=self.address)
         return explorer.confirmed_balance
+
+    @property
+    def spent(self):
+        explorer = Explorer(address=self.address)
+        return explorer.spent

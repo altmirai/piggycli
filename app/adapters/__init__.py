@@ -12,6 +12,11 @@ class Explorer:
         return address_resource['confirmed_balance']
 
     @property
+    def spent(self):
+        address_resource = self.get_btc_main_address_resource()
+        return address_resource['spent']
+
+    @property
     def tx_inputs(self):
         address_resource = self.get_btc_main_address_resource()
         return address_resource['tx_inputs']
@@ -23,6 +28,7 @@ class Explorer:
             return {
                 'address': resp['address'],
                 'confirmed_balance': resp['balance'],
+                'spent': resp['spent'],
                 'tx_inputs': self.blockcypher_address_tx_inputs(resp['txrefs'])
             }
         else:

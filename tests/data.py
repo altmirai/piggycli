@@ -9,6 +9,9 @@ from botocore.vendored.six import StringIO
 from dateutil.tz import tzutc
 from unittest.mock import Mock
 
+altmirai_access_key_id = 'AKIA3PBN5ZODNJA7B4FO'
+altmirai_secret_access_key = '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'
+
 aws_region = 'us-east-2'
 
 resource = boto3.resource('ec2')
@@ -70,6 +73,8 @@ address_id = 'addr-2ddf60b68546'
 pub_key_pem = '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeLOShJhDaDhwDpwrLA56bLLPlBe22JCe\no5D6eKR3u1P5OE7FTYs32UKuwLXKy45A1PWoqFBt4r36/WqH1qjXwA==\n-----END PUBLIC KEY-----\n'
 pub_key_handle = '1835230'
 address = '13t19fyUcjneGiLCYmVKzH78gMzZDXYyED'
+confirmed_balance = 250000
+spent = False
 
 # Bucket
 bucket_name = f'{cluster_id}-bucket'
