@@ -2,6 +2,8 @@ from app.controllers.setup_controller import Setup
 from app.controllers.credentials_controller import CredentialsController
 from app.controllers.status_controller import StatusController
 from app.controllers.addresses_controller import AddressController
+from app.controllers.tx_controller import TxController
+
 import boto3
 import click
 import json
@@ -300,5 +302,58 @@ def show(config, id):
         click.echo(f'private_key_handle: {address.private_key_handle}')
         click.echo('public_key_pem: ')
         click.echo(address.pub_key_pem)
+    else:
+        no_credentials_found()
+
+
+@piggy.command()
+@pass_config
+@click.option('-all', 'all', is_flag=True, required=True, prompt="Send recipient all the BTC in address", cls=NotRequiredIf, not_required_if='partial')
+@click.option('-some', 'partial', is_flag=True)
+@click.option('-from', 'address_id', prompt='Sending Address ID', required=True)
+@click.option('-to', 'recipient', prompt='Recipient Addreess', required=True)
+@click.option('-fee', 'fee', type=click.INT, prompt='Mining Fee', required=True)
+@click.option('-qty', 'value', type=click.INT, prompt='Quantity to send',  cls=NotRequiredIf, not_required_if='all')
+@click.option('-caddr', 'change_address', required=True, prompt='Change address',
+              cls=NotRequiredIf, not_required_if='all')
+def send(config, address_id, recipient, all, partial, fee, value, change_address):
+    if bool(config.creds_exists):
+        controller = TxController(config=config)
+        valid = controller.validate(address_id=address_id, recipient=recipient,
+                                    all=all, fee=fee, value=value, change_address=change_address)
+
+        if valid.get('error') is not None:
+            click.echo('')
+            click.echo(f"Danger Will Robinson! {valid['error']}")
+            click.echo('')
+
+        elif all:
+            click.echo('')
+            click.echo('Transation Details:')
+            click.echo()
+            click.echo(f"Address {valid['address'].address} will send:")
+            click.echo(
+                f"  * {valid['value']} SATs to {valid['recipient']}, and")
+            click.echo(f"  * pay a {fee} SATs mining fee.")
+            click.echo('')
+
+            if click.confirm('Confirm send'):
+                create_resp = controller.create(**valid)
+
+        else:
+            click.echo('')
+            click.echo('Transation Details:')
+            click.echo()
+            click.echo(f"Address {valid['address'].address} will sends:")
+            click.echo(
+                f"  * {valid['value']} SATs to {valid['recipient']},")
+            click.echo(
+                f"  * {valid['change']} SATs to {valid['change_address']}, and")
+            click.echo(f"  * pay a {fee} SATs mining fee.")
+            click.echo('')
+
+            if click.confirm('Confirm send'):
+                resp = controller.create(**valid)
+
     else:
         no_credentials_found()

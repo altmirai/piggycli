@@ -1,5 +1,6 @@
 from app.utilities.bitcoin.tx_scripts import TxOutputScript, PubKeyScript
 from app.utilities.bitcoin.addresses import P2PKH
+from app.adapters import Explorer
 
 import hashlib
 
@@ -48,6 +49,8 @@ class UnsignedTx:
 
     @property
     def tx_inputs(self):
+        explorer = Explorer(address=self.address)
+        return explorer.tx_inputs
 
     @property
     def version(self):

@@ -27,7 +27,7 @@ class AddressController:
             eni_ip=self.eni_ip,
             crypto_user_username=self.credentials.data['crypto_user_username'],
             crypto_user_password=self.credentials.data['crypto_user_password'],
-            label=f'addr-{str(uuid.uuid4())[-12:]}'
+            label=_get_address_id()
         )
         address = Address.create(pub_key=pub_key)
         assert address.save(
@@ -98,6 +98,10 @@ class AddressController:
     def bucket_name(self):
         bucket_name = f"{self.credentials.data['cluster_id']}-bucket"
         return bucket_name
+
+
+def _get_address_id():
+    return f'addr-{str(uuid.uuid4())[-12:]}'
 
 
 class NoHSMFoundError(Exception):

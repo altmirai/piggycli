@@ -178,3 +178,40 @@ def download_file_from_instance(ip_address, ssh_key_file, file, local_path):
     resp = ssh.get(file=file, local_path=local_path)
     ssh.close()
     return
+
+
+def sign_tx(ip_address, ssh_key_file, eni_ip, unsigned_tx_file, pub_key_handle, private_key_handle, crypto_user_username, crypto_user_password, count, path):
+
+    ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+    ssh.connect()
+    ssh.put(unsigned_tx_file['file_path'])
+
+    cmds = [
+        'script',
+        'sign',
+        '-eniip', eni_ip,
+        '-username', crypto_user_username,
+        '-password', crypto_user_password,
+        '-tx', unsigned_tx_file['file_name'],
+        '-vkhandle', pub_key_handle,
+        '-skhandle', private_key_handle,
+        '-count', str(count)
+    ]
+
+    output, error = ssh.run(' '.join(cmds))
+    assert bool(error) is False, error
+
+    signature_file_name = output.split()[0]
+    assert signature_file_name == f"signedTx{count}.der"
+
+    ssh.get(signature_file_name, path)
+
+    output, error = ssh.run(f"rm {unsigned_tx_file['file_name']}")
+    assert bool(error) is False, error
+
+    output, error = ssh.run(f"rm {signature_file_name}")
+    assert bool(error) is False, error
+
+    ssh.close()
+
+    return os.path.join(path, signature_file_name)

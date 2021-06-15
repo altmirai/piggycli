@@ -2,6 +2,8 @@ from app.models.credentials_model import Credentials
 from app.models.cluster_model import Cluster
 from app.models.pub_key_model import PubKey
 from app.models.address_model import Address
+from app.models.unsigned_tx_model import UnsignedTx
+
 import tests.data as data
 from tests.mocks import tf
 import os
@@ -27,6 +29,19 @@ def credentials():
     yield credentials
     os.remove(os.path.join(data.test_path, '.piggy', 'credentials.json'))
     os.rmdir(os.path.join(data.test_path, '.piggy'))
+
+
+@pytest.fixture
+def config():
+    class Config:
+        def __init__(self):
+            self.path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files'
+            self.credentials_file_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files/.piggy/credentials.json'
+            self.creds_exist = True
+
+    config = Config()
+
+    yield config
 
 
 @pytest.fixture

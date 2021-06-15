@@ -9,6 +9,8 @@ def get_btc_main_address_resource(address):
     url = f'{base_url}/{version}/btc/main/addrs/{address}'
     resp = requests.get(url, timeout=5)
     data = json.loads(resp._content.decode())
+    if data.get('error') is not None:
+        raise Exception(data['error'])
 
     return {
         'address': data['address'],

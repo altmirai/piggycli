@@ -79,6 +79,26 @@ spent = False
 # Bucket
 bucket_name = f'{cluster_id}-bucket'
 
+# Unsigned Tx
+
+
+class unsigned_tx_data:
+    def __init__(self):
+        self.sending_addr_id = 'addr-2ddf60b68546'
+        self.sending_addr_address = '13t19fyUcjneGiLCYmVKzH78gMzZDXYyED'
+        self.sending_addr_pem = '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeLOShJhDaDhwDpwrLA56bLLPlBe22JCe\no5D6eKR3u1P5OE7FTYs32UKuwLXKy45A1PWoqFBt4r36/WqH1qjXwA==\n-----END PUBLIC KEY-----\n'
+        self.sending_addr_confirmed_balance = 250000
+        self.sending_addr_spent = False
+
+        self.recipient_addr_id = 'addr-d78121d8375a'
+        self.recipient_addr_address = '1CpuPq63tVhL5vhAhL2GLFYkMZT7DBrv9J'
+        self.recipient_addr_pem = '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE8B06BQfTPLFC3iuApDKK3218TZd+89YY\n8LXmQw/SWaLyZ5K2fiGPFeibYsA+vOorg2KqisQExyHi6nqJDKyFoA==\n-----END PUBLIC KEY-----\n'
+
+        self.change_addr_id = 'addr-e77bf4cec0ec'
+        self.change_addr_address = '155PgrFMBbLWvgnRbg9K1c1gqze6Uy8fHF'
+        self.change_addr_pem = '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEbuIkKtexbSyFpWp8KWephP1wVUA/hxCq\nAwRHekgaXSd8PvhRW/GJHfvTb3lxAye17fPN59d4AupHdvfUXBsCzg==\n-----END PUBLIC KEY-----\n'
+
+
 create_key_pair_resp = {
     'KeyFingerprint': KeyFingerprint,
     'KeyMaterial': KeyMaterial,
