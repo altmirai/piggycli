@@ -49,28 +49,28 @@ class SignedTx:
             signatures=signatures
         )
 
-    @property
-    def hex(self):
-        breakpoint()
-        tx = bytearray()
+    # @property
+    # def hex(self):
+    #     tx = bytearray()
+    #     breakpoint()
 
-        tx += self.unsigned_tx.version
-        tx += self.unsigned_tx.tx_in_count
-        for tx_in in self.unsigned_tx.tx_inputs:
+    #     tx += self.unsigned_tx.version
+    #     tx += self.unsigned_tx.tx_in_count
+    #     for tx_in in self.unsigned_tx.tx_inputs:
 
-            sig_script = SigScript(
-                self.signatures, self.unsigned_tx, tx_in, self.pem)
+    #         sig_script = SigScript(
+    #             self.signatures, self.unsigned_tx, tx_in, self.pem)
 
-            tx += self.unsigned_tx.previous_output(tx_in)
-            tx += sig_script.script_bytes
-            tx += sig_script.script
-            tx += self.unsigned_tx.sequence
-        tx += self.unsigned_tx.tx_out_count
-        for tx_out in self.unsigned_tx.tx_outs.outputs:
-            tx += tx_out
-        tx += self.unsigned_tx.lock_time
+    #         tx += self.unsigned_tx.previous_output(tx_in)
+    #         tx += sig_script.script_bytes
+    #         tx += sig_script.script
+    #         tx += self.unsigned_tx.sequence
+    #     tx += self.unsigned_tx.tx_out_count
+    #     for tx_out in self.unsigned_tx.tx_outs.outputs:
+    #         tx += tx_out
+    #     tx += self.unsigned_tx.lock_time
 
-        return tx.hex()
+    #     return tx.hex()
 
 
 def _unsigned_tx_files(unsigned_tx, path):
