@@ -43,7 +43,8 @@ class TxController:
             eni_ip=eni_ip,
             path=self.credentials.path
         )
-        breakpoint()
+
+        hex = signed_tx.hex
 
         # unsigned_tx_files = _unsigned_tx_files(
         #     unsigned_tx=unsigned_tx, path=self.credentials.path)

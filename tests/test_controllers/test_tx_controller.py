@@ -4,10 +4,10 @@ pem = '-----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEEEYV4CBaW1Jc9
 address_id = 'addr-2f8558248c33'
 
 
-def test_tx(config):
-    controller = TxController(config=config)
-    resp = controller.create(
-        address_id=address_id,
-        recipient='1CpuPq63tVhL5vhAhL2GLFYkMZT7DBrv9J',
-        fee=10000
-    )
+# def test_tx(config):
+#     controller = TxController(config=config)
+#     resp = controller.create(
+#         address_id=address_id,
+#         recipient='1CpuPq63tVhL5vhAhL2GLFYkMZT7DBrv9J',
+#         fee=10000
+#     )
