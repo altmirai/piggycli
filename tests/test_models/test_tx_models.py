@@ -4,7 +4,6 @@ import tests.data as data
 
 from unittest.mock import Mock, patch
 import pytest
-import os
 
 sending_address = '1DSRQWjbNXLN8ZZZ6gqcGx1WNZeKHEJXDv'
 confirmed_balance = 5763656
@@ -69,21 +68,14 @@ address.pub_key_pem = pem
 
 
 @pytest.fixture
-def signature_files():
-    count = 0
-    signature_files = []
+def signatures():
+    signatures = []
     for sig_file in test_signatures:
-        count += 1
         with open(sig_file, 'rb') as file:
-            signature_der = file.read()
+            signature = file.read()
+        signatures.append(signature)
 
-        signature_file = os.path.join(data.test_path, f"signedTx{count}.der")
-        with open(signature_file, 'wb') as file:
-            file.write(signature_der)
-
-        signature_files.append(signature_file)
-
-    yield signature_files
+    yield signatures
 
 
 @patch('app.models.unsigned_tx_model.Explorer', return_value=explorer, autospec=True)
@@ -107,11 +99,11 @@ def test_unsigned_tx(mock_Explorer, mock_P2PKH):
 
 @patch('app.models.unsigned_tx_model.Explorer', return_value=explorer, autospec=True)
 @patch('app.models.unsigned_tx_model.P2PKH', return_value=p2pkh, autospec=True)
-def test_signed_tx(mock_Explorer, mock_P2PKH, credentials, signature_files):
+def test_signed_tx(mock_Explorer, mock_P2PKH, credentials, signatures):
     unsigned_tx = UnsignedTx(pem=pem, recipient=recipient, fee=fee, value=(
         confirmed_balance-fee), change_address=None)
 
-    with patch('app.models.signed_tx_model.ssh.sign_tx', return_value=signature_files, autospec=True):
+    with patch('app.models.signed_tx_model._get_signatures', return_value=signatures, autospec=True):
         signed_tx = SignedTx.create(
             unsigned_tx=unsigned_tx,
             address=address,
@@ -120,5 +112,7 @@ def test_signed_tx(mock_Explorer, mock_P2PKH, credentials, signature_files):
             eni_ip=data.eni_ip,
             path=data.test_path
         )
+
+    signed_tx.hex
 
     breakpoint()

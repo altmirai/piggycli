@@ -5,7 +5,7 @@ from ecdsa import SECP256k1, VerifyingKey, util
 
 class TxOutputScript():
 
-    def __init__(self,  address, confirmed_balance, recipient, fee, value, change_address):
+    def __init__(self, address, confirmed_balance, recipient, fee, value, change_address):
         assert address != change_address, 'An address cannot send change to itself'
         self.confirmed_balance = confirmed_balance
         self.recipient = recipient
@@ -110,10 +110,11 @@ class SigScript():
                 message = msg['message']
 
         for signature in self.signatures:
+
             if self.verify_der_signature(signature, message, self.pem):
                 return self.der_canonize(signature)
 
-        raise('Signatures are not valid')
+        raise SingatureNotValid('Signatures are not valid')
 
     @property
     def signature_bytes(self):
@@ -163,3 +164,7 @@ class SigScript():
     def der_canonize(self, signature):
         r, s = util.sigdecode_der(signature, SECP256k1.order)
         return util.sigencode_der_canonize(r, s, SECP256k1.order)
+
+
+class SingatureNotValid(Exception):
+    pass

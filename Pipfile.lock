@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "28127504d91d95d83622542013ba9aaab98b932620e52c6fa24c6c98a6e32329"
+            "sha256": "4b931c758aa33179a9a5864e929d760e117726b2b3495771e14545cceb8850d7"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -37,21 +37,36 @@
             "markers": "python_version >= '3.6'",
             "version": "==3.2.0"
         },
-        "boto3": {
+        "bitcoin": {
             "hashes": [
-                "sha256:2ade860f66fa6b9a9886d7ff2e5118e5efebc4807b863ef735d358ef730234ed",
-                "sha256:bbf727d770a9844834bfbf3f811db1d3438320897f67cfb21cdca5bb8fc23c13"
+                "sha256:a55134316a0328987d3b580451036f7f7570324a00a8acce3c2b7706bb904b82"
+            ],
+            "version": "==1.1.39"
+        },
+        "blockcypher": {
+            "hashes": [
+                "sha256:ad640e06ae5d2fa34be5bc2c7c276fff00ed944ac186140b58d07fafaa4d979f",
+                "sha256:c131b4d698fe4591077593a63dc99102f8305a508aa73bc851069c69a7eb752f",
+                "sha256:dd642de9d603c1914772d37c206321f7bfdc06228101e75f9e90fbbfe987ed35"
             ],
             "index": "pypi",
-            "version": "==1.17.90"
+            "version": "==1.0.92"
+        },
+        "boto3": {
+            "hashes": [
+                "sha256:8e5af9c7ea16ce1c35b7c3220d073dea9735bb1790107820d475462500ae1eff",
+                "sha256:e61607211816c194dbe2701db48dcddc87cf19372e6f57a9ebe4dfe93dfe177c"
+            ],
+            "index": "pypi",
+            "version": "==1.17.95"
         },
         "botocore": {
             "hashes": [
-                "sha256:6ae4ff3405cc4fc69ff3673a8dd234bf869aa556ae1e0da050d7f2aa3c3edab6",
-                "sha256:b301810c4bd6cab1b6eaf6bfd9f25abb27959b586c2e1689bbce035b3fb8ae66"
+                "sha256:240a9ef007292e986a4e11662f9038435d9d4fd242e083db160c86eb5c24af30",
+                "sha256:dc215f59735a3abde6c66a61f43f10d95bc18754d310da4e2037b3b8c4d8aa2d"
             ],
             "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4, 3.5'",
-            "version": "==1.20.90"
+            "version": "==1.20.95"
         },
         "certifi": {
             "hashes": [

@@ -25,8 +25,13 @@ class TxController:
 
     def create(self, address, recipient, fee, value, change_address=None, change=None, balance=None):
 
-        unsigned_tx = UnsignedTx(pem=address.pub_key_pem, recipient=recipient,
-                                 fee=fee, value=value, change_address=change_address)
+        unsigned_tx = UnsignedTx(
+            address=address,
+            recipient=recipient,
+            fee=fee,
+            value=value,
+            change_address=change_address
+        )
 
         instance = Instance(resource=self.resouce,
                             id=self.credentials.data['instance_id'])
@@ -44,15 +49,13 @@ class TxController:
             path=self.credentials.path
         )
 
-        hex = signed_tx.hex
-
-        # unsigned_tx_files = _unsigned_tx_files(
-        #     unsigned_tx=unsigned_tx, path=self.credentials.path)
+        return signed_tx.hex
 
     def validate(self, all, address_id, recipient, fee, value, change_address):
         try:
-            resp = AddressController(
-                config=self.credentials).show(id=address_id)
+            controller = AddressController(config=self.credentials)
+            resp = controller.update(id=address_id)
+            # resp = controller.show(id=address_id)
             address = resp['data']['address']
             confirmed_balance = address.confirmed_balance
             assert confirmed_balance > 0, f"Address {address.address} has a zero confirmed balance."

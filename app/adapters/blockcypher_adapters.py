@@ -1,30 +1,43 @@
-import requests
+import blockcypher
 import json
 
-base_url = 'https://api.blockcypher.com'
-version = 'v1'
+
+def _get_api_key():
+    with open('.env', 'r') as file:
+        json_data = file.read()
+    data = json.loads(json_data)
+    return data['BLOCKCYPHER_API_TOKEN']
 
 
-def get_btc_main_address_resource(address):
-    url = f'{base_url}/{version}/btc/main/addrs/{address}'
-    resp = requests.get(url, timeout=5)
-    data = json.loads(resp._content.decode())
-    if data.get('error') is not None:
-        raise Exception(data['error'])
+api_key = _get_api_key()
 
-    return {
-        'address': data['address'],
-        'balance': data['balance'],
-        'txrefs': data.get('txrefs'),
-        'spent': is_spent(data=data)
-    }
+
+def address_data(address):
+    try:
+        resp = blockcypher.get_address_details(address=address)
+        # breakpoint()
+        # resp = {'address': '12c5gjCuHNxJMGLChzdvy3sjZxJVd7R1rm', 'balance': 226323, 'txrefs': [{'tx_hash': '23b6ccf2a8a636c7f49cc6efac1475c8059c5dad59265bb120f8a3fa8aca5567', 'block_height': 687327, 'tx_input_n': -1,
+        # 'tx_output_n': 67, 'value': 226323, 'ref_balance': 226323, 'spent': False, 'confirmations': 424, 'double_spend': False}], 'spent': False}
+        return {
+            'address': resp['address'],
+            'confirmed_balance': resp['balance'],
+            'txrefs': resp.get('txrefs'),
+            'spent': is_spent(data=resp)
+        }
+
+    except AssertionError as e:
+        raise AddressNotValid(e.args[0])
+
+    except Exception as e:
+        raise Exception(e.args[0])
 
 
 def is_spent(data):
-    txrefs = data.get('txrefs')
-    if bool(txrefs):
-        for txref in txrefs:
-            if txref['spent'] == True:
-                return True
+    if data['total_sent'] > 0:
+        return True
+    else:
+        return False
 
-    return False
+
+class AddressNotValid(Exception):
+    pass

@@ -15,33 +15,24 @@ class SignedTx:
     def create(cls, unsigned_tx, address, credentials, ip_address, eni_ip, path):
         unsigned_tx_files = _unsigned_tx_files(
             unsigned_tx=unsigned_tx, path=credentials.path)
+
         ssh_key_file = os.path.join(
             credentials.path,
             credentials.data['cluster_id'],
             f"{credentials.data['ssh_key_name']}.pem"
         )
-        count = 0
-        signatures = []
-        for unsigned_tx_file in unsigned_tx_files:
-            count += 1
-            signature_file = ssh.sign_tx(
-                ip_address=ip_address,
-                ssh_key_file=ssh_key_file,
-                eni_ip=eni_ip,
-                unsigned_tx_file=unsigned_tx_file,
-                pub_key_handle=address.pub_key_handle,
-                private_key_handle=address.private_key_handle,
-                crypto_user_username=credentials.data['crypto_user_username'],
-                crypto_user_password=credentials.data['crypto_user_password'],
-                count=count,
-                path=path
-            )
 
-            with open(signature_file, 'rb') as file:
-                signature = file.read()
-            signatures.append(signature)
-            os.remove(unsigned_tx_file['file_path'])
-            os.remove(signature_file)
+        signatures = _get_signatures(
+            unsigned_tx_files=unsigned_tx_files,
+            ssh_key_file=ssh_key_file,
+            eni_ip=eni_ip,
+            ip_address=ip_address,
+            pub_key_handle=address.pub_key_handle,
+            private_key_handle=address.private_key_handle,
+            crypto_user_username=credentials.data['crypto_user_username'],
+            crypto_user_password=credentials.data['crypto_user_password'],
+            path=path
+        )
 
         return cls(
             pem=address.pub_key_pem,
@@ -51,8 +42,6 @@ class SignedTx:
 
     @property
     def hex(self):
-        breakpoint()
-
         tx = bytearray()
 
         tx += self.unsigned_tx.version
@@ -85,3 +74,30 @@ def _unsigned_tx_files(unsigned_tx, path):
                 {'file_path': to_sign_file, 'file_name': f'unsigned_tx_{n}.bin'})
 
     return to_sign_files
+
+
+def _get_signatures(unsigned_tx_files, ssh_key_file, eni_ip, ip_address, pub_key_handle, private_key_handle, crypto_user_username, crypto_user_password, path):
+    count = 0
+    signatures = []
+    for unsigned_tx_file in unsigned_tx_files:
+        count += 1
+        signature_file = ssh.sign_tx(
+            ip_address=ip_address,
+            ssh_key_file=ssh_key_file,
+            eni_ip=eni_ip,
+            unsigned_tx_file=unsigned_tx_file,
+            pub_key_handle=pub_key_handle,
+            private_key_handle=private_key_handle,
+            crypto_user_username=crypto_user_username,
+            crypto_user_password=crypto_user_password,
+            count=count,
+            path=path
+        )
+
+        with open(signature_file, 'rb') as file:
+            signature = file.read()
+        signatures.append(signature)
+        os.remove(unsigned_tx_file['file_path'])
+        os.remove(signature_file)
+
+    return signatures

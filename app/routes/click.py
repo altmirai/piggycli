@@ -258,6 +258,7 @@ def list(config):
             click.echo('')
             click.echo(
                 f"id: {address.id}, address: {address.address}, confirmed_balance: {address.confirmed_balance}, spent: {address.spent}")
+            click.echo(f"txrefs: {address.txrefs}")
             click.echo('')
     else:
         no_credentials_found()
@@ -302,6 +303,33 @@ def show(config, id):
         click.echo(f'private_key_handle: {address.private_key_handle}')
         click.echo('public_key_pem: ')
         click.echo(address.pub_key_pem)
+        click.echo('')
+        click.echo(f'txrefs: {address.txrefs}')
+    else:
+        no_credentials_found()
+
+
+@address.command()
+@click.option('-id', 'id', prompt='Address ID', required=True)
+@pass_config
+def update(config, id):
+    if bool(config.creds_exists):
+        controller = AddressController(config=config)
+        resp = controller.update(id=id)
+        address = resp['data']['address']
+        click.echo('')
+        click.echo(f'id: {address.id}')
+        click.echo(f'address: {address.address}')
+        click.echo(f'confirmed_balance: {address.confirmed_balance}')
+        click.echo(f'spent: {address.spent}')
+        click.echo('')
+        click.echo(f'public_key_handle: {address.pub_key_handle}')
+        click.echo(f'private_key_handle: {address.private_key_handle}')
+        click.echo('public_key_pem: ')
+        click.echo(address.pub_key_pem)
+        click.echo('')
+        click.echo(f'txrefs: {address.txrefs}')
+
     else:
         no_credentials_found()
 
@@ -321,7 +349,6 @@ def send(config, address_id, recipient, all, partial, fee, value, change_address
         controller = TxController(config=config)
         valid = controller.validate(address_id=address_id, recipient=recipient,
                                     all=all, fee=fee, value=value, change_address=change_address)
-
         if valid.get('error') is not None:
             click.echo('')
             click.echo(f"Danger Will Robinson! {valid['error']}")
@@ -339,7 +366,7 @@ def send(config, address_id, recipient, all, partial, fee, value, change_address
 
             if click.confirm('Confirm send'):
                 create_resp = controller.create(**valid)
-
+                click.echo(create_resp)
         else:
             click.echo('')
             click.echo('Transation Details:')
@@ -353,7 +380,9 @@ def send(config, address_id, recipient, all, partial, fee, value, change_address
             click.echo('')
 
             if click.confirm('Confirm send'):
-                resp = controller.create(**valid)
+                create_resp = controller.create(**valid)
+
+                click.echo(create_resp)
 
     else:
         no_credentials_found()

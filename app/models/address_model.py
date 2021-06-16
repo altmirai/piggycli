@@ -1,17 +1,22 @@
 from app.utilities.bitcoin.addresses import P2PKH
+from app.adapters import Explorer
 
-import hashlib
-from base58 import b58encode_check
-from ecdsa import VerifyingKey
+# import hashlib
+# from base58 import b58encode_check
+# from ecdsa import VerifyingKey
 import json
 
 
 class Address():
-    def __init__(self, id, pub_key_pem, pub_key_handle, private_key_handle):
+    def __init__(self, id, pub_key_pem, pub_key_handle, private_key_handle, address, confirmed_balance, spent, txrefs):
         self.id = id
         self.pub_key_pem = pub_key_pem
         self.pub_key_handle = pub_key_handle
         self.private_key_handle = private_key_handle
+        self.address = address
+        self.confirmed_balance = confirmed_balance
+        self.txrefs = txrefs
+        self.spent = spent
 
     @classmethod
     def all(cls, bucket, s3):
@@ -30,20 +35,30 @@ class Address():
         resp_data = json.loads(resp_data_json)
         address = cls(
             id=id,
-            pub_key_pem=resp_data['pub_key_pem'],
-            pub_key_handle=resp_data['pub_key_handle'],
-            private_key_handle=resp_data['private_key_handle']
+            pub_key_pem=resp_data.get('pub_key_pem'),
+            pub_key_handle=resp_data.get('pub_key_handle'),
+            private_key_handle=resp_data.get('private_key_handle'),
+            address=resp_data.get('address'),
+            confirmed_balance=resp_data.get('confirmed_balance'),
+            txrefs=resp_data.get('txrefs'),
+            spent=resp_data.get('spent')
         )
 
         return address
 
     @classmethod
     def create(cls, pub_key):
+        address = P2PKH(pem=pub_key.pem).address
+        explorer = Explorer(address=address)
         return cls(
             id=pub_key.label,
             pub_key_pem=pub_key.pem,
             pub_key_handle=pub_key.handle,
             private_key_handle=pub_key.private_key_handle,
+            address=address,
+            confirmed_balance=explorer.confirmed_balance,
+            spent=explorer.spent,
+            txrefs=explorer.txrefs
         )
 
     def save(self, bucket, s3, region):
@@ -55,7 +70,10 @@ class Address():
                 'pub_key_handle': self.pub_key_handle,
                 'private_key_handle': self.private_key_handle,
                 'pub_key_pem': self.pub_key_pem,
-                'address': self.address
+                'address': self.address,
+                'confirmed_balance': self.confirmed_balance,
+                'spent': self.spent,
+                'txrefs': self.txrefs
             }
         )
         data_bytes = bytes(data_json, 'UTF-8')
@@ -68,20 +86,13 @@ class Address():
             'HTTPStatusCode'] == 200, f'Failed to save address: {self.id} to bucket: {bucket}'
         return self.id
 
-    @property
-    def address(self):
-        address = P2PKH(pem=self.pub_key_pem)
-        return address.address
-
-    @property
-    def confirmed_balance(self):
-        address = P2PKH(pem=self.pub_key_pem)
-        return address.confirmed_balance
-
-    @property
-    def spent(self):
-        address = P2PKH(pem=self.pub_key_pem)
-        return address.spent
+    def refresh(self, bucket, s3, region):
+        explorer = Explorer(address=self.address)
+        self.confirmed_balance = explorer.confirmed_balance
+        self.spent = explorer.spent
+        self.txref = explorer.txrefs
+        self.save(bucket=bucket, s3=s3, region=region)
+        return self
 
 
 def bucket_exists(bucket, s3):

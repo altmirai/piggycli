@@ -7,13 +7,19 @@ import hashlib
 
 class UnsignedTx:
 
-    def __init__(self, pem, recipient, fee, value, change_address):
-        self.p2pkh = P2PKH(pem)
-        self.address = self.p2pkh.address
-        self.confirmed_balance = self.p2pkh.confirmed_balance
+    def __init__(self, address, recipient, fee, value, change_address):
+        self.confirmed_balance = address.confirmed_balance
         self.tx_outs = TxOutputScript(
-            self.address, self.confirmed_balance, recipient, fee, value, change_address)
-        self.pub_key_script = PubKeyScript(self.address)
+            address=address.address,
+            confirmed_balance=address.confirmed_balance,
+            recipient=recipient,
+            fee=fee,
+            value=value,
+            change_address=change_address
+        )
+        self.pub_key_script = PubKeyScript(address=address.address)
+        breakpoint()
+        self.txrefs = address.txrefs
 
     @property
     def messages(self):
@@ -48,13 +54,24 @@ class UnsignedTx:
         return to_signs
 
     @property
-    def tx_inputs(self):
-        explorer = Explorer(address=self.address)
-        return explorer.tx_inputs
-
-    @property
     def version(self):
         return (1).to_bytes(4, byteorder="little", signed=True)
+
+    @property
+    def tx_inputs(self):
+        tx_inputs = []
+        if bool(self.txrefs):
+            for txref in self.txrefs:
+                tx_input = {'output_no': txref['tx_output_n'],
+                            'outpoint_index': None, 'outpoint_hash': None}
+                if tx_input['output_no'] >= 0:
+                    tx_input['outpoint_index'] = (txref['tx_output_n']).to_bytes(
+                        4, byteorder='little', signed=False)
+                    hash = bytearray.fromhex(txref['tx_hash'])
+                    hash.reverse()
+                    tx_input['outpoint_hash'] = hash
+                tx_inputs.append(tx_input)
+        return tx_inputs
 
     @property
     def tx_in_count(self):

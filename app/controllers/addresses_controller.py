@@ -18,6 +18,10 @@ class AddressController:
 
     def index(self):
         addresses = Address.all(bucket=self.bucket_name, s3=self.s3)
+        for address in addresses:
+            self.update(id=address.id)
+
+        addresses = Address.all(bucket=self.bucket_name, s3=self.s3)
         return {'data': {'addresses': addresses}, 'http_status_code': 200}
 
     def create(self):
@@ -39,6 +43,19 @@ class AddressController:
 
     def show(self, id):
         address = Address.find(bucket=self.bucket_name, s3=self.s3, id=id)
+        breakpoint()
+        return {'data': {'address': address}, 'http_status_code': 200}
+
+    def update(self, id):
+        address = Address.find(
+            id=id,
+            bucket=self.bucket_name,
+            s3=self.s3
+        ).refresh(
+            bucket=self.bucket_name,
+            s3=self.s3,
+            region=self.credentials.data['aws_region']
+        )
         return {'data': {'address': address}, 'http_status_code': 200}
 
     @property

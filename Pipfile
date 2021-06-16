@@ -13,6 +13,7 @@ scp = "*"
 base58 = "*"
 ecdsa = "*"
 requests = "*"
+blockcypher = "*"
 
 [dev-packages]
 autopep8 = "*"
