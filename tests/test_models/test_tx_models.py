@@ -78,41 +78,41 @@ def signatures():
     yield signatures
 
 
-@patch('app.models.unsigned_tx_model.Explorer', return_value=explorer, autospec=True)
-@patch('app.models.unsigned_tx_model.P2PKH', return_value=p2pkh, autospec=True)
-def test_unsigned_tx(mock_Explorer, mock_P2PKH):
-    unsigned_tx = UnsignedTx(pem=pem, recipient=recipient, fee=fee, value=(
-        confirmed_balance-fee), change_address=None)
+# @patch('app.models.unsigned_tx_model.Explorer', return_value=explorer, autospec=True)
+# @patch('app.models.unsigned_tx_model.P2PKH', return_value=p2pkh, autospec=True)
+# def test_unsigned_tx(mock_Explorer, mock_P2PKH):
+#     unsigned_tx = UnsignedTx(pem=pem, recipient=recipient, fee=fee, value=(
+#         confirmed_balance-fee), change_address=None)
 
-    resp_messages_hex = []
-    for message in unsigned_tx.messages:
+#     resp_messages_hex = []
+#     for message in unsigned_tx.messages:
 
-        resp_messages_hex.append(message['message'].hex())
+#         resp_messages_hex.append(message['message'].hex())
 
-    resp_tosign_hex = []
-    for elem in unsigned_tx.to_sign:
-        resp_tosign_hex.append(elem.hex())
+#     resp_tosign_hex = []
+#     for elem in unsigned_tx.to_sign:
+#         resp_tosign_hex.append(elem.hex())
 
-    assert resp_messages_hex == messages_hex
-    assert resp_tosign_hex == tosign_hex
+#     assert resp_messages_hex == messages_hex
+#     assert resp_tosign_hex == tosign_hex
 
 
-@patch('app.models.unsigned_tx_model.Explorer', return_value=explorer, autospec=True)
-@patch('app.models.unsigned_tx_model.P2PKH', return_value=p2pkh, autospec=True)
-def test_signed_tx(mock_Explorer, mock_P2PKH, credentials, signatures):
-    unsigned_tx = UnsignedTx(pem=pem, recipient=recipient, fee=fee, value=(
-        confirmed_balance-fee), change_address=None)
+# @patch('app.models.unsigned_tx_model.Explorer', return_value=explorer, autospec=True)
+# @patch('app.models.unsigned_tx_model.P2PKH', return_value=p2pkh, autospec=True)
+# def test_signed_tx(mock_Explorer, mock_P2PKH, credentials, signatures):
+#     unsigned_tx = UnsignedTx(pem=pem, recipient=recipient, fee=fee, value=(
+#         confirmed_balance-fee), change_address=None)
 
-    with patch('app.models.signed_tx_model._get_signatures', return_value=signatures, autospec=True):
-        signed_tx = SignedTx.create(
-            unsigned_tx=unsigned_tx,
-            address=address,
-            credentials=credentials,
-            ip_address=data.public_ip_address,
-            eni_ip=data.eni_ip,
-            path=data.test_path
-        )
+#     with patch('app.models.signed_tx_model._get_signatures', return_value=signatures, autospec=True):
+#         signed_tx = SignedTx.create(
+#             unsigned_tx=unsigned_tx,
+#             address=address,
+#             credentials=credentials,
+#             ip_address=data.public_ip_address,
+#             eni_ip=data.eni_ip,
+#             path=data.test_path
+#         )
 
-    signed_tx.hex
+#     signed_tx.hex
 
-    breakpoint()
+#     breakpoint()

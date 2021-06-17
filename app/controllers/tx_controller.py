@@ -16,12 +16,9 @@ import os
 class TxController:
 
     def __init__(self, config):
+
         self.credentials = CredentialsController().create_from_file(
             credentials_file_path=config.credentials_file_path)
-        self.resouce = boto3.resource(
-            'ec2',
-
-        )
 
     def create(self, address, recipient, fee, value, change_address=None, change=None, balance=None):
 
@@ -33,7 +30,7 @@ class TxController:
             change_address=change_address
         )
 
-        instance = Instance(resource=self.resouce,
+        instance = Instance(resource=self.resource,
                             id=self.credentials.data['instance_id'])
 
         cluster = Cluster(client=self.cloudhsmv2,
@@ -55,7 +52,6 @@ class TxController:
         try:
             controller = AddressController(config=self.credentials)
             resp = controller.update(id=address_id)
-            # resp = controller.show(id=address_id)
             address = resp['data']['address']
             confirmed_balance = address.confirmed_balance
             assert confirmed_balance > 0, f"Address {address.address} has a zero confirmed balance."

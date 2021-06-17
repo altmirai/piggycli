@@ -1,5 +1,5 @@
 import app.controllers.setup_controller as setup
-from tests.mocks import tf, ssh_key, cluster, instance, hsm, certs
+from tests.data.mocks import tf, ssh_key, cluster, instance, hsm, certs
 import tests.data as data
 
 from unittest.mock import patch

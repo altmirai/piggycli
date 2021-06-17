@@ -43,7 +43,6 @@ class AddressController:
 
     def show(self, id):
         address = Address.find(bucket=self.bucket_name, s3=self.s3, id=id)
-        breakpoint()
         return {'data': {'address': address}, 'http_status_code': 200}
 
     def update(self, id):

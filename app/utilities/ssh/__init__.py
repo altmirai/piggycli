@@ -21,13 +21,11 @@ class SSH:
         interval = 5
         try:
             retries += 1
-            print('SSH into the instance: {}'.format(self.ip_address))
             self.client.connect(
                 hostname=self.ip_address,
                 username=self.username,
                 key_filename=self.ssh_key_file
             )
-            print('Connected')
             return True
         except Exception as e:
             print(e)
@@ -64,7 +62,6 @@ class SSH:
     def close(self):
         try:
             self.client.close()
-            print('SSH Connection Closed')
             return True
         except Exception as e:
             print(e)

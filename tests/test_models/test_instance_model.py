@@ -1,5 +1,5 @@
 from app.models.instance_model import Instance
-from tests.mocks import instance
+from tests.data.mocks import instance
 import tests.data as data
 from unittest.mock import patch, Mock
 import boto3

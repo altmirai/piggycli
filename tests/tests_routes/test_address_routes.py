@@ -1,4 +1,4 @@
-from tests.mocks import address_controller
+from tests.data.mocks import address_controller
 from app.routes import click
 
 from click.testing import CliRunner

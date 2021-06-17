@@ -77,6 +77,7 @@ address.address = data.address
 address.confirmed_balance = data.confirmed_balance
 address.spent = data.spent
 address.save.return_value = True
+address.txrefs = data.txrefs
 
 address_controller = Mock()
 address_controller.index.return_value = {
@@ -85,3 +86,27 @@ address_controller.create.return_value = {
     'data': {'address': address, 'http_status_code': 200}}
 address_controller.show.return_value = {
     'data': {'address': address, 'http_status_code': 200}}
+
+tx_output_script = Mock()
+tx_output_script.confirmed_balance = data.confirmed_balance
+tx_output_script.recipient = data.recipient
+tx_output_script.fee = data.fee
+tx_output_script.value = data.value
+tx_output_script.change_address = None
+tx_output_script.outputs = data.outputs
+
+unsigned_tx = Mock()
+unsigned_tx.confirmed_balance = data.confirmed_balance
+unsigned_tx.tx_outs = tx_output_script
+unsigned_tx.to_sign = data.to_sign
+unsigned_tx.version = data.version
+unsigned_tx.tx_inputs = data.tx_inputs
+unsigned_tx.tx_in_count = data.tx_in_count
+unsigned_tx.placeholder = data.placeholder
+unsigned_tx.sequence = data.sequence
+unsigned_tx.hash_code = data.hash_code
+
+signed_tx = Mock()
+signed_tx.pem = data.pem
+signed_tx.signatures = data.signatures
+signed_tx.hex = data.tx_hex

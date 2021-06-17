@@ -72,4 +72,4 @@ def test_find(get_object):
 
 
 def test_confirmed_balance(address):
-    assert address.confirmed_balance == 0
+    assert address.confirmed_balance == data.confirmed_balance

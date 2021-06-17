@@ -18,7 +18,6 @@ class UnsignedTx:
             change_address=change_address
         )
         self.pub_key_script = PubKeyScript(address=address.address)
-        breakpoint()
         self.txrefs = address.txrefs
 
     @property

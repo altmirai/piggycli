@@ -2,15 +2,17 @@ from app.controllers.addresses_controller import AddressController
 from app.models.address_model import Address
 from app.models.instance_model import Instance
 from app.models.pub_key_model import PubKey
-from tests.mocks import instance, cluster, pub_key, address
+from tests.data.mocks import instance, cluster, pub_key, address
 from unittest.mock import patch, Mock
 import tests.data as data
-from tests.mocks import cluster, instance
+from tests.data.mocks import cluster, instance
 import os
 
 
 @patch.object(Address, 'all', return_value=[address], autospec=True)
-def test_index(mock_Address, credentials):
+@patch.object(Address, 'find', return_value=address, autospec=True)
+@patch.object(Address, 'refresh', autospec=True)
+def test_index(mock_all, mock_find, mock_refresh, credentials):
     controller = AddressController(config=credentials)
     resp = controller.index()
     assert resp['data']['addresses'][0].address == data.address

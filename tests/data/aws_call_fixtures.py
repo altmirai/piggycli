@@ -1,5 +1,5 @@
 import tests.data as data
-from tests.mocks import instance
+from tests.data.mocks import instance
 from unittest.mock import patch
 
 import botocore.session

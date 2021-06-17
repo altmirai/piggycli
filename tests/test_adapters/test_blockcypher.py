@@ -1,21 +1,17 @@
 from app.adapters import Explorer
+import tests.data as data
 
-address = '1HiE8iHHRJyMooJLxue76pjsj8rmxKXe95'
-
-'https://sochain.com/api/v2/get_address_balance/BTC/1HiE8iHHRJyMooJLxue76pjsj8rmxKXe95'
-
-
-# def test_balanance():
-#     resp = sochain.get_confirmed_sat_balance(address=address)
-
-#     assert 1 == 1
+from unittest.mock import patch
 
 
-# def test_get_tx_inputs():
-#     resp = sochain.get_tx_inputs(address=address)
-#     assert 1 == 1
+@patch(
+    'app.adapters.blockcypher_adapters.blockcypher.get_address_details',
+    return_value=data.sending_address_blockcypher_resp,
+    autospec=True)
+def test_get_address_data(mock_get_address_details):
+    explorer = Explorer(address=data.address)
 
-
-def test_address_resource():
-    explorer = Explorer(address=address)
-    resp = explorer.tx_inputs
+    assert explorer.address == data.address
+    assert explorer.confirmed_balance == data.confirmed_balance
+    assert explorer.spent == data.spent
+    assert explorer.txrefs == data.txrefs

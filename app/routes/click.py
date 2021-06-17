@@ -258,7 +258,6 @@ def list(config):
             click.echo('')
             click.echo(
                 f"id: {address.id}, address: {address.address}, confirmed_balance: {address.confirmed_balance}, spent: {address.spent}")
-            click.echo(f"txrefs: {address.txrefs}")
             click.echo('')
     else:
         no_credentials_found()
@@ -303,8 +302,6 @@ def show(config, id):
         click.echo(f'private_key_handle: {address.private_key_handle}')
         click.echo('public_key_pem: ')
         click.echo(address.pub_key_pem)
-        click.echo('')
-        click.echo(f'txrefs: {address.txrefs}')
     else:
         no_credentials_found()
 
@@ -327,8 +324,6 @@ def update(config, id):
         click.echo(f'private_key_handle: {address.private_key_handle}')
         click.echo('public_key_pem: ')
         click.echo(address.pub_key_pem)
-        click.echo('')
-        click.echo(f'txrefs: {address.txrefs}')
 
     else:
         no_credentials_found()
@@ -342,7 +337,7 @@ def update(config, id):
 @click.option('-to', 'recipient', prompt='Recipient Addreess', required=True)
 @click.option('-fee', 'fee', type=click.INT, prompt='Mining Fee', required=True)
 @click.option('-qty', 'value', type=click.INT, prompt='Quantity to send',  cls=NotRequiredIf, not_required_if='all')
-@click.option('-caddr', 'change_address', required=True, prompt='Change address',
+@click.option('-change', 'change_address', required=True, prompt='Change address',
               cls=NotRequiredIf, not_required_if='all')
 def send(config, address_id, recipient, all, partial, fee, value, change_address):
     if bool(config.creds_exists):
@@ -364,9 +359,13 @@ def send(config, address_id, recipient, all, partial, fee, value, change_address
             click.echo(f"  * pay a {fee} SATs mining fee.")
             click.echo('')
 
-            if click.confirm('Confirm send'):
-                create_resp = controller.create(**valid)
-                click.echo(create_resp)
+            if click.confirm('Confirm details'):
+                tx_hex = controller.create(**valid)
+
+                click.echo()
+                click.echo('Raw Tx Hex:')
+                click.echo(tx_hex)
+                click.echo()
         else:
             click.echo('')
             click.echo('Transation Details:')
@@ -379,10 +378,13 @@ def send(config, address_id, recipient, all, partial, fee, value, change_address
             click.echo(f"  * pay a {fee} SATs mining fee.")
             click.echo('')
 
-            if click.confirm('Confirm send'):
-                create_resp = controller.create(**valid)
+            if click.confirm('Confirm details'):
+                tx_hex = controller.create(**valid)
 
-                click.echo(create_resp)
+                click.echo()
+                click.echo('Raw Tx Hex:')
+                click.echo(tx_hex)
+                click.echo()
 
     else:
         no_credentials_found()

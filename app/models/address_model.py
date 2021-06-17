@@ -1,3 +1,4 @@
+from datetime import datetime
 from app.utilities.bitcoin.addresses import P2PKH
 from app.adapters import Explorer
 
@@ -5,6 +6,7 @@ from app.adapters import Explorer
 # from base58 import b58encode_check
 # from ecdsa import VerifyingKey
 import json
+import datetime
 
 
 class Address():
@@ -31,17 +33,18 @@ class Address():
     @classmethod
     def find(cls, bucket, s3, id):
         resp = s3.get_object(Bucket=bucket, Key=id)
-        resp_data_json = resp['Body'].read().decode()
-        resp_data = json.loads(resp_data_json)
+        data_json = resp['Body'].read().decode()
+        data = json.loads(data_json)
+
         address = cls(
             id=id,
-            pub_key_pem=resp_data.get('pub_key_pem'),
-            pub_key_handle=resp_data.get('pub_key_handle'),
-            private_key_handle=resp_data.get('private_key_handle'),
-            address=resp_data.get('address'),
-            confirmed_balance=resp_data.get('confirmed_balance'),
-            txrefs=resp_data.get('txrefs'),
-            spent=resp_data.get('spent')
+            pub_key_pem=data.get('pub_key_pem'),
+            pub_key_handle=data.get('pub_key_handle'),
+            private_key_handle=data.get('private_key_handle'),
+            address=data.get('address'),
+            confirmed_balance=data.get('confirmed_balance'),
+            txrefs=data.get('txrefs'),
+            spent=data.get('spent')
         )
 
         return address
@@ -50,6 +53,7 @@ class Address():
     def create(cls, pub_key):
         address = P2PKH(pem=pub_key.pem).address
         explorer = Explorer(address=address)
+
         return cls(
             id=pub_key.label,
             pub_key_pem=pub_key.pem,
@@ -65,6 +69,7 @@ class Address():
         if bucket_exists(bucket=bucket, s3=s3) is False:
             create_bucket(bucket=bucket, s3=s3, region=region)
         key = self.id
+
         data_json = json.dumps(
             {
                 'pub_key_handle': self.pub_key_handle,
@@ -90,7 +95,7 @@ class Address():
         explorer = Explorer(address=self.address)
         self.confirmed_balance = explorer.confirmed_balance
         self.spent = explorer.spent
-        self.txref = explorer.txrefs
+        self.txrefs = explorer.txrefs
         self.save(bucket=bucket, s3=s3, region=region)
         return self
 

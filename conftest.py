@@ -1,8 +1,8 @@
 from app.models.certificate_model import Certs
 from app.models.credentials_model import Credentials, read_env_vars, set_env_var
 from app.models.ssh_key_model import SSHKey
-from tests.aws_call_fixtures import *
-from tests.model_fixtures import *
+from tests.data.aws_call_fixtures import *
+from tests.data.model_fixtures import *
 import tests.data as data
 
 import botocore.session

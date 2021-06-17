@@ -5,7 +5,7 @@ from app.models.address_model import Address
 from app.models.unsigned_tx_model import UnsignedTx
 
 import tests.data as data
-from tests.mocks import tf
+from tests.data.mocks import address as mocked_address
 import os
 from unittest.mock import patch
 import pytest
@@ -67,8 +67,25 @@ def pub_key():
 def address():
     address = Address(
         id=data.address_id,
+        address=data.address,
         pub_key_pem=data.pub_key_pem,
         pub_key_handle=data.pub_key_handle,
-        private_key_handle=data.private_key_handle
+        private_key_handle=data.private_key_handle,
+        confirmed_balance=data.confirmed_balance,
+        txrefs=data.txrefs,
+        spent=data.spent
     )
     yield address
+
+
+@pytest.fixture
+def unsigned_tx_no_change():
+    unsigned_tx = UnsignedTx(
+        address=mocked_address,
+        recipient=data.recipient,
+        fee=data.fee,
+        value=data.value,
+        change_address=None
+    )
+
+    yield unsigned_tx
