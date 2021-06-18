@@ -3,9 +3,10 @@ from app.models.cluster_model import Cluster
 from app.models.pub_key_model import PubKey
 from app.models.address_model import Address
 from app.models.unsigned_tx_model import UnsignedTx
+from app.models.signed_tx_model import SignedTx
 
 import tests.data as data
-from tests.data.mocks import address as mocked_address
+from tests.data import mocks
 import os
 from unittest.mock import patch
 import pytest
@@ -81,7 +82,7 @@ def address():
 @pytest.fixture
 def unsigned_tx_no_change():
     unsigned_tx = UnsignedTx(
-        address=mocked_address,
+        address=mocks.address,
         recipient=data.recipient,
         fee=data.fee,
         value=data.value,
@@ -89,3 +90,14 @@ def unsigned_tx_no_change():
     )
 
     yield unsigned_tx
+
+
+@pytest.fixture
+def signed_tx_no_change():
+    signed_tx = SignedTx(
+        pem=data.pem,
+        unsigned_tx=mocks.unsigned_tx,
+        signatures=data.signatures
+    )
+
+    yield signed_tx
