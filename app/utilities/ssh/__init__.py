@@ -125,6 +125,7 @@ def activate_cluster(ip_address, ssh_key_file, eni_ip, crypto_officer_password,
         output, error = ssh.run(
             f'script activate -eniip {eni_ip} -copassword {crypto_officer_password} -cuusername {crypto_user_username} -cupassword {crypto_user_password}')
         assert bool(error) is False, error
+        breakpoint()
         return
 
     except Exception as Error:

@@ -258,6 +258,7 @@ def list(config):
             click.echo('')
             click.echo(
                 f"id: {address.id}, address: {address.address}, confirmed_balance: {address.confirmed_balance}, spent: {address.spent}")
+            click.echo(f"txrefs: {address.txrefs}")
             click.echo('')
     else:
         no_credentials_found()
@@ -278,8 +279,14 @@ def create(config):
         click.echo('')
         click.echo(f'public_key_handle: {address.pub_key_handle}')
         click.echo(f'private_key_handle: {address.private_key_handle}')
+        click.echo('')
         click.echo('public_key_pem: ')
         click.echo(address.pub_key_pem)
+        click.echo('')
+        click.echo('txrefs:')
+        click.echo(address.txrefs)
+        click.echo('')
+
     else:
         no_credentials_found()
 
@@ -300,8 +307,14 @@ def show(config, id):
         click.echo('')
         click.echo(f'public_key_handle: {address.pub_key_handle}')
         click.echo(f'private_key_handle: {address.private_key_handle}')
+        click.echo('')
         click.echo('public_key_pem: ')
         click.echo(address.pub_key_pem)
+        click.echo('')
+        click.echo('txrefs:')
+        click.echo(address.txrefs)
+        click.echo('')
+
     else:
         no_credentials_found()
 
@@ -322,8 +335,13 @@ def update(config, id):
         click.echo('')
         click.echo(f'public_key_handle: {address.pub_key_handle}')
         click.echo(f'private_key_handle: {address.private_key_handle}')
+        click.echo('')
         click.echo('public_key_pem: ')
         click.echo(address.pub_key_pem)
+        click.echo('')
+        click.echo('txrefs:')
+        click.echo(address.txrefs)
+        click.echo('')
 
     else:
         no_credentials_found()

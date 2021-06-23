@@ -1,15 +1,4 @@
 import blockcypher
-import json
-
-
-def _get_api_key():
-    with open('.env', 'r') as file:
-        json_data = file.read()
-    data = json.loads(json_data)
-    return data['BLOCKCYPHER_API_TOKEN']
-
-
-api_key = _get_api_key()
 
 
 def address_data(address):

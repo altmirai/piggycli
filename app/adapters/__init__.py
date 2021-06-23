@@ -14,6 +14,7 @@ class Explorer:
 
 def _get_address_data(address):
     resp = blockcypher.address_data(address=address)
+
     return {
         'address': resp['address'],
         'confirmed_balance': resp['confirmed_balance'],
