@@ -42,12 +42,14 @@ class Cluster:
         )
         return
 
-    def activate(self, instance, crypto_officer_password, crypto_user_username, crypto_user_password, ssh_key):
+    def activate(
+            self, instance, crypto_officer_username, crypto_officer_password, crypto_user_username, crypto_user_password, ssh_key):
         eni_ip = self.hsms[0]['EniIp']
         ssh.activate_cluster(
             ip_address=instance.public_ip_address,
             ssh_key_file=ssh_key.ssh_key_file,
             eni_ip=eni_ip,
+            crypto_officer_username=crypto_officer_username,
             crypto_officer_password=crypto_officer_password,
             crypto_user_username=crypto_user_username,
             crypto_user_password=crypto_user_password

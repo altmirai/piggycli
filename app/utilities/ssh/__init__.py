@@ -117,13 +117,13 @@ def upload_file_to_instance(ip_address, ssh_key_file, file_path):
         raise Exception(Error.args[0])
 
 
-def activate_cluster(ip_address, ssh_key_file, eni_ip, crypto_officer_password,
-                     crypto_user_username, crypto_user_password):
+def activate_cluster(
+        ip_address, ssh_key_file, eni_ip, crypto_officer_username, crypto_officer_password, crypto_user_username, crypto_user_password):
     try:
         ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
         ssh.connect()
         output, error = ssh.run(
-            f'script activate -eniip {eni_ip} -copassword {crypto_officer_password} -cuusername {crypto_user_username} -cupassword {crypto_user_password}')
+            f'script activate -eniip {eni_ip} -cousername {crypto_officer_username} -copassword {crypto_officer_password} -cuusername {crypto_user_username} -cupassword {crypto_user_password}')
         assert bool(error) is False, error
         breakpoint()
         return

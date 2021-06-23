@@ -212,6 +212,7 @@ def _activate_cluster(cluster, instance, crypto_officer_password, crypto_user_us
         crypto_officer_password=crypto_officer_password,
         crypto_user_username=crypto_user_username,
         crypto_user_password=crypto_user_password,
+        crypto_user_username='admin',
         ssh_key=ssh_key
     )
 
