@@ -62,6 +62,8 @@ class Setup:
 
         _initialize_cluster(cluster=cluster, certs=certs)
 
+        breakpoint()
+
         _activate_cluster(
             cluster=cluster,
             instance=instance,
