@@ -3,6 +3,7 @@ from app.models.instance_model import Instance
 from app.models.cluster_model import Cluster
 from app.models.hsm_model import HSM
 from app.models.certificate_model import Certs
+from app.controllers.credentials_controller import CredentialsController
 import app.utilities.ssh as ssh
 from app.utilities.terraform import Tf
 import os
@@ -38,13 +39,27 @@ class Setup:
 
         cluster = _cluster(id=resp['cluster_id'], client=self.cloudhsmv2)
 
-        self.path = _set_path(path=self.path, cluster=cluster)
+        self.path = _set_path(path=self.path)
 
         ssh_key_file = _write_ssh_key_to_file(
             ssh_key=ssh_key, cluster_id=cluster.id, path=self.path)
 
         instance = _instance(
             resource=self.resource, id=resp['instance_id'], ssh_key=ssh_key)
+
+        resp = _create_credentials(
+            path=self.path,
+            aws_region=self.aws_region,
+            aws_access_key_id=self.aws_access_key_id,
+            aws_secret_access_key=self.aws_secret_access_key,
+            customer_ca_key_password=self.customer_ca_key_password,
+            crypto_officer_password=self.crypto_officer_password,
+            crypto_user_username=self.crypto_user_username,
+            crypto_user_password=self.crypto_user_password,
+            cluster_id=cluster.id,
+            instance_id=instance.id,
+            ssh_key_name=ssh_key.name
+        )
 
         hsm = _hsm(cluster=cluster, client=self.cloudhsmv2)
 
@@ -61,8 +76,6 @@ class Setup:
         )
 
         _initialize_cluster(cluster=cluster, certs=certs)
-
-        breakpoint()
 
         _activate_cluster(
             cluster=cluster,
@@ -106,8 +119,8 @@ def _cluster(client, id):
     return Cluster(client=client, id=id)
 
 
-def _set_path(path, cluster):
-    path = os.path.join(path, cluster.id)
+def _set_path(path):
+    path = os.path.join(path)
     if os.path.isdir(path) is False:
         os.mkdir(path)
     return path
@@ -130,6 +143,24 @@ def _instance(resource, id, ssh_key):
     instance = Instance(resource=resource, id=id)
     instance.install_packages(ssh_key_file=ssh_key.ssh_key_file)
     return instance
+
+
+def _create_credentials(path, aws_region, aws_access_key_id, aws_secret_access_key, customer_ca_key_password,
+                        crypto_officer_password, crypto_user_username, crypto_user_password, cluster_id, instance_id, ssh_key_name):
+    credentials = CredentialsController()
+    cedentials = credentials.create(
+        path=path,
+        aws_region=aws_region,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+        customer_ca_key_password=customer_ca_key_password,
+        crypto_officer_password=crypto_officer_password,
+        crypto_user_username=crypto_user_username,
+        crypto_user_password=crypto_user_password,
+        cluster_id=cluster_id,
+        instance_id=instance_id,
+        ssh_key_name=ssh_key_name
+    )
 
 
 def _hsm(client, cluster):
@@ -207,14 +238,16 @@ def _initialize_cluster(cluster, certs):
 
 
 def _activate_cluster(cluster, instance, crypto_officer_password, crypto_user_username, crypto_user_password, ssh_key):
-    cluster.activate(
+    resp = cluster.activate(
         instance=instance,
         crypto_officer_password=crypto_officer_password,
+        crypto_officer_username='admin',
         crypto_user_username=crypto_user_username,
         crypto_user_password=crypto_user_password,
-        crypto_user_username='admin',
         ssh_key=ssh_key
     )
+
+    breakpoint()
 
     seconds = 0
     while cluster.state != 'ACTIVE':

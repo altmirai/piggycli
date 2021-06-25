@@ -14,15 +14,16 @@ s3 = botocore.session.get_session().create_client('s3', region_name=aws_region)
 
 test_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files'
 production_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files'
-credentials_file_path = os.path.join(
-    test_path,
-    '.piggy',
-    'credentials.json'
-)
 
 cluster_id = 'cluster-lbtkdldygfh'
 instance_id = 'i-051bdb2ae099024a5'
 vpc_id = 'vpc-06f745fe81ec3c1a8'
+
+credentials_file_path = os.path.join(
+    test_path,
+    cluster_id,
+    'credentials.json'
+)
 
 hsm_id = 'hsm-u25cdzfj56s'
 eni_ip = '10.1.0.9'

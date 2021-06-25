@@ -38,7 +38,7 @@ def test_cluster(mock_Cluster):
 
 
 def test_set_path():
-    resp = setup._set_path(path=data.test_path, cluster=cluster)
+    resp = setup._set_path(path=os.path.join(data.test_path, cluster.id))
     assert resp == '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files/cluster-lbtkdldygfh'
 
 

@@ -94,7 +94,7 @@ class AddressController:
     @property
     def ssh_key_file(self):
         ssh_key_file = os.path.join(
-            self.credentials.path,
+            self.credentials.data['path'],
             self.credentials.data['cluster_id'],
             f"{self.credentials.data['ssh_key_name']}.pem"
         )

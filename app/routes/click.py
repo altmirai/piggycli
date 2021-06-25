@@ -115,22 +115,7 @@ def setup(**kwargs):
 
     resp = setup.run()
 
-    credentials = CredentialsController()
-    cedentials_json = credentials.create(
-        path=kwargs['path'],
-        aws_region=kwargs['aws_region'],
-        aws_access_key_id=kwargs['aws_access_key_id'],
-        aws_secret_access_key=kwargs['aws_secret_access_key'],
-        customer_ca_key_password=kwargs['customer_ca_key_password'],
-        crypto_officer_password=kwargs['crypto_officer_password'],
-        crypto_user_username=kwargs['crypto_user_username'],
-        crypto_user_password=kwargs['crypto_user_password'],
-        cluster_id=resp['cluster_id'],
-        instance_id=resp['instance_id'],
-        ssh_key_name=resp['ssh_key_name']
-    )
-
-    click.echo(cedentials_json)
+    click.echo(resp)
 
 
 @piggy.group()

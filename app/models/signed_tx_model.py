@@ -14,10 +14,10 @@ class SignedTx:
     @classmethod
     def create(cls, unsigned_tx, address, credentials, ip_address, eni_ip, path):
         unsigned_tx_files = _unsigned_tx_files(
-            unsigned_tx=unsigned_tx, path=credentials.path)
+            unsigned_tx=unsigned_tx, path=credentials.data['path'])
 
         ssh_key_file = os.path.join(
-            credentials.path,
+            credentials.data['path'],
             credentials.data['cluster_id'],
             f"{credentials.data['ssh_key_name']}.pem"
         )

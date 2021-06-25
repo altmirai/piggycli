@@ -43,7 +43,7 @@ class TxController:
             credentials=self.credentials,
             ip_address=instance.public_ip_address,
             eni_ip=eni_ip,
-            path=self.credentials.path
+            path=self.credentials.data['path']
         )
 
         return signed_tx.hex

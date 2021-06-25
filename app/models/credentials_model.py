@@ -4,6 +4,7 @@ import os
 
 class CredentialsData:
     def __init__(self, **kwargs):
+        self.path = kwargs['path']
         self.aws_region = kwargs['aws_region']
         self.ssh_key_name = kwargs['ssh_key_name']
         self.cluster_id = kwargs['cluster_id']
@@ -44,21 +45,15 @@ def read_env_vars():
 class Credentials:
     def __init__(self, credentials_file_path, data):
         self.credentials_file_path = credentials_file_path
-        self.path = self.credentials_file_path.replace(os.path.join(
-            '/', '.piggy', 'credentials.json'), '')
         self.data = data
 
     @classmethod
-    def create(cls, **kwargs):
-        path = kwargs['path']
-        data = get_credentials_data(**kwargs)
-        credentials_file_path = os.path.join(
-            path, '.piggy', 'credentials.json')
+    def create(cls, credentials_file_path, data):
 
         _write_credentials_to_file(
-            credentials_file_path=credentials_file_path,  path=path, data=data)
+            credentials_file_path=credentials_file_path, data=data)
 
-        set_env_var(var='PATH', value=path)
+        set_env_var(var='PATH', value=credentials_file_path)
 
         credentials = Credentials(
             credentials_file_path=credentials_file_path, data=data)
@@ -82,22 +77,24 @@ class Credentials:
             setattr(credentials_data, key, value)
         self.data = credentials_data.__dict__
         _write_credentials_to_file(
-            credentials_file_path=self.credentials_file_path,  path=self.path, data=self.data)
+            credentials_file_path=self.credentials_file_path, data=self.data)
         return self
 
     def delete(self):
         return
 
 
-def _create_dot_piggy_dir(path):
-    piggy_path = os.path.join(path, '.piggy')
-    if os.path.isdir(piggy_path) is False:
-        os.mkdir(piggy_path)
-    return
+# def _create_dot_piggy_dir(path):
+#     piggy_path = os.path.join(path, '.piggy')
+#     if os.path.isdir(piggy_path) is False:
+#         os.mkdir(piggy_path)
+#     return
 
 
-def _write_credentials_to_file(credentials_file_path, path, data):
-    _create_dot_piggy_dir(path=path)
+def _write_credentials_to_file(credentials_file_path, data):
+    if os.path.exists(os.path.join(data['path'], data['cluster_id'])) is False:
+        os.mkdir(os.path.join(data['path'], data['cluster_id']))
     with open(credentials_file_path, 'w') as file:
         file.write(json.dumps(data))
+
     return

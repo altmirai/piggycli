@@ -105,9 +105,10 @@ t = CredentialsData()
 
 def delete_files_and_folders():
     cluster_folder = os.path.join(data.test_path, data.cluster_id)
-    piggy_folder = os.path.join(data.test_path, '.piggy')
+    # piggy_folder = os.path.join(data.test_path, '.piggy')
     test_files_folder = os.path.join(data.test_path)
-    folders = [cluster_folder, piggy_folder, test_files_folder]
+    folders = [cluster_folder, test_files_folder]
+    # folders = [cluster_folder, piggy_folder, test_files_folder]
 
     for folder in folders:
         if os.path.isdir(folder):

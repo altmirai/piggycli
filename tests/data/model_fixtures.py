@@ -14,22 +14,30 @@ import pytest
 
 @pytest.fixture
 def credentials():
+    if os.path.exists(os.path.join(data.test_path, data.cluster_id)) is False:
+        os.mkdir(os.path.join(data.test_path, data.cluster_id))
+
+    credentials_file_path = os.path.join(
+        data.test_path, data.cluster_id, 'credentials.json')
+    _data = {
+        'path': data.test_path,
+        'aws_region': data.aws_region,
+        'aws_access_key_id': data.aws_access_key_id,
+        'aws_secret_access_key': data.aws_secret_access_key,
+        'customer_ca_key_password': data.customer_ca_key_password,
+        'crypto_officer_password': data.crypto_officer_password,
+        'crypto_user_username': data.crypto_user_username,
+        'crypto_user_password': data.crypto_user_password,
+        'cluster_id': data.cluster_id,
+        'instance_id': data.instance_id,
+        'ssh_key_name': data.ssh_key_name
+    }
     credentials = Credentials.create(
-        path=data.test_path,
-        aws_region=data.aws_region,
-        ssh_key_name=data.ssh_key_name,
-        cluster_id=data.cluster_id,
-        instance_id=data.instance_id,
-        aws_access_key_id=data.aws_access_key_id,
-        aws_secret_access_key=data.aws_secret_access_key,
-        customer_ca_key_password=data.customer_ca_key_password,
-        crypto_officer_password=data.crypto_officer_password,
-        crypto_user_username=data.crypto_user_username,
-        crypto_user_password=data.crypto_user_password
+        credentials_file_path=credentials_file_path,
+        data=_data
     )
     yield credentials
-    os.remove(os.path.join(data.test_path, '.piggy', 'credentials.json'))
-    os.rmdir(os.path.join(data.test_path, '.piggy'))
+    os.remove(credentials_file_path)
 
 
 @pytest.fixture
@@ -37,7 +45,7 @@ def config():
     class Config:
         def __init__(self):
             self.path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files'
-            self.credentials_file_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files/.piggy/credentials.json'
+            self.credentials_file_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files/credentials.json'
             self.creds_exist = True
 
     config = Config()
@@ -49,8 +57,7 @@ def config():
 def cluster():
     cluster = Cluster(client=data.cloudhsmv2, id=data.cluster_id)
     yield cluster
-    os.remove(os.path.join(data.test_path, '.piggy', 'credentials.json'))
-    os.rmdir(os.path.join(data.test_path, '.piggy'))
+    os.remove(os.path.join(data.test_path, 'credentials.json'))
 
 
 @pytest.fixture
