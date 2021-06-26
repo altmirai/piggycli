@@ -27,7 +27,7 @@ class AddressController:
     def create(self):
         pub_key = PubKey.create(
             ip_address=self.ip_address,
-            ssh_key_file=self.ssh_key_file,
+            ssh_key_file_path=self.ssh_key_file_path,
             eni_ip=self.eni_ip,
             crypto_user_username=self.credentials.data['crypto_user_username'],
             crypto_user_password=self.credentials.data['crypto_user_password'],
@@ -92,13 +92,12 @@ class AddressController:
         return ip_address
 
     @property
-    def ssh_key_file(self):
-        ssh_key_file = os.path.join(
-            self.credentials.data['path'],
-            self.credentials.data['cluster_id'],
+    def ssh_key_file_path(self):
+        ssh_key_file_path = os.path.join(
+            self.credentials.data['cluster_path'],
             f"{self.credentials.data['ssh_key_name']}.pem"
         )
-        return ssh_key_file
+        return ssh_key_file_path
 
     @property
     def eni_ip(self):

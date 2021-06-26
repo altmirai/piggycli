@@ -10,11 +10,11 @@ class PubKey:
         self.private_key_handle = private_key_handle
 
     @classmethod
-    def create(cls, ip_address, ssh_key_file, eni_ip, crypto_user_username, crypto_user_password, label):
+    def create(cls, ip_address, ssh_key_file_path, eni_ip, crypto_user_username, crypto_user_password, label):
 
         resp = ssh.gen_ecc_key_pair(
             ip_address=ip_address,
-            ssh_key_file=ssh_key_file,
+            ssh_key_file_path=ssh_key_file_path,
             eni_ip=eni_ip,
             crypto_user_username=crypto_user_username,
             crypto_user_password=crypto_user_password,

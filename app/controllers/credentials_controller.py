@@ -9,12 +9,13 @@ class CredentialsController:
     def __init__(self):
         pass
 
-    def create(self, path, aws_region, aws_access_key_id, aws_secret_access_key, customer_ca_key_password,
+    def create(self, base_path, cluster_path, aws_region, aws_access_key_id, aws_secret_access_key, customer_ca_key_password,
                crypto_officer_password, crypto_user_username, crypto_user_password, cluster_id, instance_id, ssh_key_name):
         credentials_file_path = os.path.join(
-            path, cluster_id, 'credentials.json')
+            cluster_path, 'credentials.json')
         data = {
-            'path': path,
+            'base_path': base_path,
+            'cluster_path': cluster_path,
             'aws_region': aws_region,
             'aws_access_key_id': aws_access_key_id,
             'aws_secret_access_key': aws_secret_access_key,

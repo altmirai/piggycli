@@ -6,9 +6,9 @@ import json
 
 
 class SSH:
-    def __init__(self, ip_address, ssh_key_file):
+    def __init__(self, ip_address, ssh_key_file_path):
         self.ip_address = ip_address
-        self.ssh_key_file = ssh_key_file
+        self.ssh_key_file_path = ssh_key_file_path
 
         self.username = 'ec2-user'
         self.client = paramiko.SSHClient()
@@ -24,7 +24,7 @@ class SSH:
             self.client.connect(
                 hostname=self.ip_address,
                 username=self.username,
-                key_filename=self.ssh_key_file
+                key_filename=self.ssh_key_file_path
             )
             return True
         except Exception as e:
@@ -68,10 +68,10 @@ class SSH:
             return False
 
 
-def install_packages(ip_address, ssh_key_file):
+def install_packages(ip_address, ssh_key_file_path):
     try:
         print('Installing Packages')
-        ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+        ssh = SSH(ip_address=ip_address, ssh_key_file_path=ssh_key_file_path)
         ssh.connect()
 
         output, error = ssh.run('sudo yum update -y')
@@ -100,9 +100,9 @@ def install_packages(ip_address, ssh_key_file):
         raise Exception(Error.args[0])
 
 
-def upload_file_to_instance(ip_address, ssh_key_file, file_path):
+def upload_file_to_instance(ip_address, ssh_key_file_path, file_path):
     try:
-        ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+        ssh = SSH(ip_address=ip_address, ssh_key_file_path=ssh_key_file_path)
         ssh.connect()
 
         ssh.put(file_path)
@@ -118,9 +118,9 @@ def upload_file_to_instance(ip_address, ssh_key_file, file_path):
 
 
 def activate_cluster(
-        ip_address, ssh_key_file, eni_ip, crypto_officer_username, crypto_officer_password, crypto_user_username, crypto_user_password):
+        ip_address, ssh_key_file_path, eni_ip, crypto_officer_username, crypto_officer_password, crypto_user_username, crypto_user_password):
     try:
-        ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+        ssh = SSH(ip_address=ip_address, ssh_key_file_path=ssh_key_file_path)
         ssh.connect()
         output, error = ssh.run(
             f'script activate -eniip {eni_ip} -cousername {crypto_officer_username} -copassword {crypto_officer_password} -cuusername {crypto_user_username} -cupassword {crypto_user_password}')
@@ -131,10 +131,10 @@ def activate_cluster(
         raise Exception(Error.args[0])
 
 
-def configure_cloudhsm_client(ip_address, ssh_key_file, hsm_ip_address):
+def configure_cloudhsm_client(ip_address, ssh_key_file_path, hsm_ip_address):
     print('Configure CloudHSM-Client')
     try:
-        ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+        ssh = SSH(ip_address=ip_address, ssh_key_file_path=ssh_key_file_path)
         ssh.connect()
 
         output, error = ssh.run(
@@ -154,9 +154,9 @@ def configure_cloudhsm_client(ip_address, ssh_key_file, hsm_ip_address):
         raise Exception(Error.args[0])
 
 
-def gen_ecc_key_pair(ip_address, ssh_key_file, eni_ip, crypto_user_username, crypto_user_password, key_label):
+def gen_ecc_key_pair(ip_address, ssh_key_file_path, eni_ip, crypto_user_username, crypto_user_password, key_label):
     try:
-        ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+        ssh = SSH(ip_address=ip_address, ssh_key_file_path=ssh_key_file_path)
         ssh.connect()
         output, error = ssh.run(
             f'script gen-ecc-key-pair -eniip {eni_ip} -username {crypto_user_username} -password {crypto_user_password} -label {key_label}')
@@ -169,17 +169,17 @@ def gen_ecc_key_pair(ip_address, ssh_key_file, eni_ip, crypto_user_username, cry
         raise Exception(Error.args[0])
 
 
-def download_file_from_instance(ip_address, ssh_key_file, file, local_path):
-    ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+def download_file_from_instance(ip_address, ssh_key_file_path, file, local_path):
+    ssh = SSH(ip_address=ip_address, ssh_key_file_path=ssh_key_file_path)
     ssh.connect()
     resp = ssh.get(file=file, local_path=local_path)
     ssh.close()
     return
 
 
-def sign_tx(ip_address, ssh_key_file, eni_ip, unsigned_tx_file, pub_key_handle, private_key_handle, crypto_user_username, crypto_user_password, count, path):
+def sign_tx(ip_address, ssh_key_file_path, eni_ip, unsigned_tx_file, pub_key_handle, private_key_handle, crypto_user_username, crypto_user_password, count, path):
 
-    ssh = SSH(ip_address=ip_address, ssh_key_file=ssh_key_file)
+    ssh = SSH(ip_address=ip_address, ssh_key_file_path=ssh_key_file_path)
     ssh.connect()
     ssh.put(unsigned_tx_file['file_path'])
 

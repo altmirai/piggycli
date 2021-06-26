@@ -38,7 +38,8 @@ def test_cluster(mock_Cluster):
 
 
 def test_set_path():
-    resp = setup._set_path(path=os.path.join(data.test_path, cluster.id))
+    resp = setup._set_cluster_path(
+        base_path=data.test_base_path, cluster=cluster)
     assert resp == '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files/cluster-lbtkdldygfh'
 
 
@@ -49,7 +50,7 @@ test_setup_vars = {
     'ec2': data.ec2,
     'cloudhsmv2': data.cloudhsmv2,
     'resource': data.resource,
-    'path': data.test_path,
+    'base_path': data.test_base_path,
     'customer_ca_key_password': data.customer_ca_key_password,
     'crypto_officer_password': data.crypto_officer_password,
     'crypto_user_username': data.crypto_user_username,
@@ -74,7 +75,7 @@ def test_run(*args):
     assert resp['ssh_key_pem'] == ssh_key.material
     assert resp['instance_id'] == instance.id
 
-    cluster_folder = os.path.join(data.test_path, cluster.id)
+    cluster_folder = data.test_cluster_path
     files = os.listdir(cluster_folder)
     for file in files:
         os.remove(os.path.join(cluster_folder, file))

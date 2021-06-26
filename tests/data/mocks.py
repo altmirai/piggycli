@@ -15,8 +15,8 @@ ssh_key.fingerprint = data.KeyFingerprint
 ssh_key.id = data.KeyPairId
 ssh_key.material = data.KeyMaterial
 ssh_key.name = data.KeyName
-ssh_key.ssh_key_file = os.path.join(
-    data.test_path, data.cluster_id, f'{data.KeyName}.pem')
+ssh_key.ssh_key_file_path = os.path.join(
+    data.test_cluster_path, f'{data.KeyName}.pem')
 ssh_key.wrtie_to_file.return_value = True
 
 cluster = Mock()

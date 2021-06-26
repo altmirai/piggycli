@@ -1,4 +1,5 @@
 import app.utilities.ssh as ssh
+import json
 
 
 class Cluster:
@@ -45,16 +46,24 @@ class Cluster:
     def activate(
             self, instance, crypto_officer_username, crypto_officer_password, crypto_user_username, crypto_user_password, ssh_key):
         eni_ip = self.hsms[0]['EniIp']
-        ssh.activate_cluster(
+        resp_json = ssh.activate_cluster(
             ip_address=instance.public_ip_address,
-            ssh_key_file=ssh_key.ssh_key_file,
+            ssh_key_file_path=ssh_key.ssh_key_file_path,
             eni_ip=eni_ip,
             crypto_officer_username=crypto_officer_username,
             crypto_officer_password=crypto_officer_password,
             crypto_user_username=crypto_user_username,
             crypto_user_password=crypto_user_password
         )
-        return
+
+        resp = json.loads(resp_json)
+
+        assert resp.get(
+            'error') is None, f"Activate cluster error: {resp['error']}"
+        assert resp['crypto_officer']['username'] == crypto_officer_username
+        assert resp['crypto_officer']['password'] == crypto_officer_password
+
+        return True
 
     def read(self):
         resp = self.client.describe_clusters(

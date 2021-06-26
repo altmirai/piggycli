@@ -49,7 +49,7 @@ test_signatures = [
     '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/signature_files/signedTx7340043_3.der'
 ]
 
-path = data.test_path
+# path = data.test_path
 
 explorer = Mock()
 explorer.address = sending_address

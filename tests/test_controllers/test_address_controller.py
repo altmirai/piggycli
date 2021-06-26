@@ -44,8 +44,8 @@ def test_ip_address(credentials):
 
 def test_ssh_key_file(credentials):
     controller = AddressController(config=credentials)
-    resp = controller.ssh_key_file
-    assert resp == data.ssh_key_file
+    resp = controller.ssh_key_file_path
+    assert resp == data.ssh_key_file_path
 
 
 def test_eni_ip(credentials):

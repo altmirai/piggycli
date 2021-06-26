@@ -32,9 +32,9 @@ class Instance:
         instance = self.resource.Instance(self.id)
         return instance.key_name
 
-    def install_packages(self, ssh_key_file):
-        outputs = ssh.install_packages(ip_address=self.public_ip_address,
-                                       ssh_key_file=ssh_key_file)
+    def install_packages(self, ssh_key_file_path):
+        outputs = ssh.install_packages(
+            ip_address=self.public_ip_address, ssh_key_file_path=ssh_key_file_path)
         return True
 
     def start(self):

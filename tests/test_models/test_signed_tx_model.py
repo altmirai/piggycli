@@ -12,8 +12,7 @@ def test_create(mocked_get_signatures, unsigned_tx_no_change, address, credentia
         address=address,
         credentials=credentials,
         eni_ip=data.eni_ip,
-        ip_address=data.public_ip_address,
-        path=data.test_path
+        ip_address=data.public_ip_address
     )
 
     assert signed_tx.pem == data.pem

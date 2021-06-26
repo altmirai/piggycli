@@ -104,9 +104,9 @@ t = CredentialsData()
 
 
 def delete_files_and_folders():
-    cluster_folder = os.path.join(data.test_path, data.cluster_id)
+    cluster_folder = data.test_cluster_path
     # piggy_folder = os.path.join(data.test_path, '.piggy')
-    test_files_folder = os.path.join(data.test_path)
+    test_files_folder = os.path.join(data.test_base_path)
     folders = [cluster_folder, test_files_folder]
     # folders = [cluster_folder, piggy_folder, test_files_folder]
 
@@ -121,9 +121,9 @@ def delete_files_and_folders():
 
 
 def pytest_sessionstart(session):
-    if os.path.isdir(data.test_path):
+    if os.path.isdir(data.test_base_path):
         delete_files_and_folders()
-    os.mkdir(data.test_path)
+    os.mkdir(data.test_base_path)
     set_env_var(var='PATH', value=t.test_path)
 
 

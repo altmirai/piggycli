@@ -10,7 +10,7 @@ import boto3
 def test_create(mock_gen_ecc_key_pair):
     pub_key = PubKey.create(
         ip_address=data.public_ip_address,
-        ssh_key_file=data.ssh_key_file,
+        ssh_key_file_path=data.ssh_key_file_path,
         eni_ip=data.eni_ip,
         crypto_user_username=data.crypto_user_username,
         crypto_user_password=data.crypto_user_password,

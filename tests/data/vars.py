@@ -12,16 +12,16 @@ ec2 = botocore.session.get_session().create_client('ec2')
 cloudhsmv2 = botocore.session.get_session().create_client('cloudhsmv2')
 s3 = botocore.session.get_session().create_client('s3', region_name=aws_region)
 
-test_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files'
+cluster_id = 'cluster-lbtkdldygfh'
+test_base_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files'
+test_cluster_path = os.path.join(test_base_path, cluster_id)
 production_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files'
 
-cluster_id = 'cluster-lbtkdldygfh'
 instance_id = 'i-051bdb2ae099024a5'
 vpc_id = 'vpc-06f745fe81ec3c1a8'
 
 credentials_file_path = os.path.join(
-    test_path,
-    cluster_id,
+    test_cluster_path,
     'credentials.json'
 )
 
@@ -29,7 +29,7 @@ hsm_id = 'hsm-u25cdzfj56s'
 eni_ip = '10.1.0.9'
 
 ssh_key_name = 'Piggy_SSH_Key_0194afd1'
-ssh_key_file = os.path.join(test_path, cluster_id, f'{ssh_key_name}.pem')
+ssh_key_file_path = os.path.join(test_cluster_path, f'{ssh_key_name}.pem')
 
 azs = ['us-east-2a', 'us-east-2b', 'us-east-2c']
 public_ip_address = '18.222.220.62'

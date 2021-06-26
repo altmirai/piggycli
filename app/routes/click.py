@@ -19,14 +19,8 @@ class Config(object):
                 env_vars_json = file.read()
             env_vars = json.loads(env_vars_json)
 
-            self.path = env_vars.get('PATH')
+            self.credentials_file_path = env_vars.get('PATH')
         except:
-            self.path = None
-
-        if bool(self.path):
-            self.credentials_file_path = os.path.join(
-                self.path, '.piggy', 'credentials.json')
-        else:
             self.credentials_file_path = None
 
         self.creds_exists = os.path.exists(self.credentials_file_path)
@@ -103,7 +97,7 @@ def setup(**kwargs):
         ec2=ec2,
         cloudhsmv2=cloudhsmv2,
         resource=resource,
-        path=kwargs['path'],
+        base_path=kwargs['path'],
         aws_region=kwargs['aws_region'],
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key,
@@ -207,7 +201,7 @@ def status(config, action):
 
         status = StatusController(
             credentials_file_path=config.credentials_file_path,
-            path=config.path,
+            base_path=credentials.data['base_path'],
             ec2=ec2,
             cloudhsmv2=cloudhsmv2,
             resource=resource

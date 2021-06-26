@@ -14,13 +14,14 @@ import pytest
 
 @pytest.fixture
 def credentials():
-    if os.path.exists(os.path.join(data.test_path, data.cluster_id)) is False:
-        os.mkdir(os.path.join(data.test_path, data.cluster_id))
+    if os.path.exists(data.test_cluster_path) is False:
+        os.mkdir(data.test_cluster_path)
 
     credentials_file_path = os.path.join(
-        data.test_path, data.cluster_id, 'credentials.json')
+        data.test_cluster_path, 'credentials.json')
     _data = {
-        'path': data.test_path,
+        'base_path': data.test_base_path,
+        'cluster_path': data.test_cluster_path,
         'aws_region': data.aws_region,
         'aws_access_key_id': data.aws_access_key_id,
         'aws_secret_access_key': data.aws_secret_access_key,
