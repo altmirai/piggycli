@@ -6,7 +6,7 @@ from tests.data.mocks import address, instance, cluster, unsigned_tx, signed_tx
 
 
 def test_object(credentials):
-    controller = TxController(config=credentials)
+    controller = TxController(credentials=credentials)
 
     assert controller.credentials.data == credentials.data
 
@@ -16,7 +16,7 @@ def test_object(credentials):
 @patch('app.controllers.tx_controller.Cluster', return_value=cluster, autospec=True)
 @patch('app.controllers.tx_controller.SignedTx.create', return_value=signed_tx, autospec=True)
 def test_create(mock_UnsignedTx, mock_Instance, mock_Cluster, mock_SignedTx, credentials):
-    controller = TxController(config=credentials)
+    controller = TxController(credentials=credentials)
     resp = controller.create(
         address=address,
         recipient=data.recipient,

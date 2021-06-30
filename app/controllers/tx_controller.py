@@ -15,13 +15,11 @@ import os
 
 class TxController:
 
-    def __init__(self, config):
+    def __init__(self, credentials):
 
-        self.credentials = CredentialsController().create_from_file(
-            credentials_file_path=config.credentials_file_path)
+        self.credentials = credentials
 
     def create(self, address, recipient, fee, value, change_address=None, change=None, balance=None):
-
         unsigned_tx = UnsignedTx(
             address=address,
             recipient=recipient,
@@ -30,10 +28,10 @@ class TxController:
             change_address=change_address
         )
 
-        instance = Instance(resource=self.resource,
+        instance = Instance(resource=self.credentials.resource,
                             id=self.credentials.data['instance_id'])
 
-        cluster = Cluster(client=self.cloudhsmv2,
+        cluster = Cluster(client=self.credentials.cloudhsmv2,
                           id=self.credentials.data['cluster_id'])
         eni_ip = cluster.hsms[0]['EniIp']
 
@@ -49,7 +47,7 @@ class TxController:
 
     def validate(self, all, address_id, recipient, fee, value, change_address):
         try:
-            controller = AddressController(config=self.credentials)
+            controller = AddressController(credentials=self.credentials)
             resp = controller.update(id=address_id)
             address = resp['data']['address']
             confirmed_balance = address.confirmed_balance
@@ -90,24 +88,6 @@ class TxController:
 
         except Exception as e:
             return {'error': e.args[0]}
-
-    @property
-    def resource(self):
-        resource = boto3.resource(
-            'ec2',
-            aws_access_key_id=self.credentials.data['aws_access_key_id'],
-            aws_secret_access_key=self.credentials.data['aws_secret_access_key']
-        )
-        return resource
-
-    @property
-    def cloudhsmv2(self):
-        cloudhsmv2 = boto3.client(
-            'cloudhsmv2',
-            aws_access_key_id=self.credentials.data['aws_access_key_id'],
-            aws_secret_access_key=self.credentials.data['aws_secret_access_key']
-        )
-        return cloudhsmv2
 
 
 def _unsigned_tx_files(unsigned_tx, path):

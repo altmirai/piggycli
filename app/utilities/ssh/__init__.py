@@ -177,7 +177,7 @@ def download_file_from_instance(ip_address, ssh_key_file_path, file, local_path)
     return
 
 
-def sign_tx(ip_address, ssh_key_file_path, eni_ip, unsigned_tx_file, pub_key_handle, private_key_handle, crypto_user_username, crypto_user_password, count, path):
+def sign_tx(ip_address, ssh_key_file_path, eni_ip, unsigned_tx_file, pub_key_handle, private_key_handle, crypto_user_username, crypto_user_password, count, cluster_path):
 
     ssh = SSH(ip_address=ip_address, ssh_key_file_path=ssh_key_file_path)
     ssh.connect()
@@ -194,14 +194,13 @@ def sign_tx(ip_address, ssh_key_file_path, eni_ip, unsigned_tx_file, pub_key_han
         '-skhandle', private_key_handle,
         '-count', str(count)
     ]
-
     output, error = ssh.run(' '.join(cmds))
     assert bool(error) is False, error
 
     signature_file_name = output.split()[0]
     assert signature_file_name == f"signedTx{count}.der"
 
-    ssh.get(signature_file_name, path)
+    ssh.get(signature_file_name, cluster_path)
 
     output, error = ssh.run(f"rm {unsigned_tx_file['file_name']}")
     assert bool(error) is False, error
@@ -211,4 +210,4 @@ def sign_tx(ip_address, ssh_key_file_path, eni_ip, unsigned_tx_file, pub_key_han
 
     ssh.close()
 
-    return os.path.join(path, signature_file_name)
+    return os.path.join(cluster_path, signature_file_name)

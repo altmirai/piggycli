@@ -5,13 +5,12 @@ import json
 
 
 class StatusController:
-    def __init__(self, credentials_file_path, base_path, ec2, cloudhsmv2, resource):
-        self.base_path = base_path
-        self.credentials_data = _get_credentials_data(
-            credentials_file_path=credentials_file_path)
-        self.ec2 = ec2
-        self.resource = resource
-        self.cloudhsmv2 = cloudhsmv2
+    def __init__(self, credentials):
+        self.credentials = credentials
+        self.base_path = credentials.data['base_path']
+        self.ec2 = credentials.ec2
+        self.resource = credentials.resource
+        self.cloudhsmv2 = credentials.cloudhsmv2
 
     def show(self):
         # hsm states = ['CREATE_IN_PROGRESS', 'ACTIVE', 'DELETE_IN_PROGRESS']
@@ -78,7 +77,7 @@ class StatusController:
 
     @property
     def instance(self):
-        id = self.credentials_data['instance_id']
+        id = self.credentials.data['instance_id']
         instances = Instance.all(client=self.ec2)
         if len(instances) == 0:
             raise InstanceNotFoundError(f'Instance ID {id} not found.')
@@ -92,7 +91,7 @@ class StatusController:
 
     @property
     def cluster(self):
-        id = self.credentials_data['cluster_id']
+        id = self.credentials.data['cluster_id']
         clusters = Cluster.all(client=self.cloudhsmv2)
         if len(clusters) == 0:
             raise ClusterNotFoundError(f'Cluster ID {id} not found.')
@@ -130,13 +129,6 @@ class StatusController:
                 }
             )
         return backups
-
-
-def _get_credentials_data(credentials_file_path):
-    with open(credentials_file_path, 'r') as file:
-        credentials_data_json = file.read()
-    credentials_data = json.loads(credentials_data_json)
-    return credentials_data
 
 
 class InstanceNotFoundError(Exception):

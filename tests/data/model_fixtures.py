@@ -4,6 +4,8 @@ from app.models.pub_key_model import PubKey
 from app.models.address_model import Address
 from app.models.unsigned_tx_model import UnsignedTx
 from app.models.signed_tx_model import SignedTx
+from app.models.ssh_key_model import SSHKey
+from app.models.certificate_model import Certs
 
 import tests.data as data
 from tests.data import mocks
@@ -39,6 +41,17 @@ def credentials():
     )
     yield credentials
     os.remove(credentials_file_path)
+
+
+@pytest.fixture
+def ssh_key():
+    ssh_key = SSHKey(
+        id=data.KeyPairId,
+        name=data.KeyName,
+        material=data.KeyMaterial,
+        fingerprint=data.KeyFingerprint
+    )
+    yield ssh_key
 
 
 @pytest.fixture

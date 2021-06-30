@@ -13,7 +13,7 @@ import os
 @patch.object(Address, 'find', return_value=address, autospec=True)
 @patch.object(Address, 'refresh', autospec=True)
 def test_index(mock_all, mock_find, mock_refresh, credentials):
-    controller = AddressController(config=credentials)
+    controller = AddressController(credentials=credentials)
     resp = controller.index()
     assert resp['data']['addresses'][0].address == data.address
 
@@ -23,39 +23,39 @@ def test_index(mock_all, mock_find, mock_refresh, credentials):
 @patch('app.controllers.addresses_controller.Cluster', return_value=cluster, autospec=True)
 @patch.object(Address, 'create', return_value=address, autospec=True)
 def test_create(mock_PubKey, mock_Instance, mock_Cluster, mock_Address, credentials):
-    controller = AddressController(config=credentials)
+    controller = AddressController(credentials=credentials)
     resp = controller.create()
     assert resp['data']['address'].address == data.address
 
 
 @patch.object(Address, 'find', return_value=address, autospec=True)
 def test_show(mock_Adddress, credentials):
-    controller = AddressController(config=credentials)
+    controller = AddressController(credentials=credentials)
     resp = controller.show(id=data.address_id)
     assert resp['data']['address'].address == data.address
 
 
 def test_ip_address(credentials):
     with patch('app.controllers.addresses_controller.Instance', return_value=instance, autospec=True):
-        controller = AddressController(config=credentials)
+        controller = AddressController(credentials=credentials)
         resp = controller.ip_address
     assert resp == data.public_ip_address
 
 
 def test_ssh_key_file(credentials):
-    controller = AddressController(config=credentials)
+    controller = AddressController(credentials=credentials)
     resp = controller.ssh_key_file_path
     assert resp == data.ssh_key_file_path
 
 
 def test_eni_ip(credentials):
     with patch('app.controllers.addresses_controller.Cluster', return_value=cluster, autospec=True):
-        controller = AddressController(config=credentials)
+        controller = AddressController(credentials=credentials)
         resp = controller.eni_ip
     assert resp == data.eni_ip
 
 
 def test_bucket_name(credentials):
-    controller = AddressController(config=credentials)
+    controller = AddressController(credentials=credentials)
     resp = controller.bucket_name
     assert resp == 'cluster-lbtkdldygfh-bucket'

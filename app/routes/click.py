@@ -3,30 +3,10 @@ from app.controllers.credentials_controller import CredentialsController
 from app.controllers.status_controller import StatusController
 from app.controllers.addresses_controller import AddressController
 from app.controllers.tx_controller import TxController
+from app.utilities.decorators import creds, check_status
 
 import boto3
 import click
-import json
-import os
-import subprocess
-
-
-class Config(object):
-
-    def __init__(self):
-        try:
-            with open('.env', 'r') as file:
-                env_vars_json = file.read()
-            env_vars = json.loads(env_vars_json)
-
-            self.credentials_file_path = env_vars.get('PATH')
-        except:
-            self.credentials_file_path = None
-
-        self.creds_exists = os.path.exists(self.credentials_file_path)
-
-
-pass_config = click.make_pass_decorator(Config, ensure=True)
 
 
 class NotRequiredIf(click.Option):
@@ -53,17 +33,6 @@ class NotRequiredIf(click.Option):
                 self.required = False
 
         return super(NotRequiredIf, self).handle_parse_result(ctx, opts, args)
-
-
-def no_credentials_found():
-    click.echo('')
-    click.echo(
-        'No credentials file found.'
-    )
-    click.echo('If you have already setup your AWS infrastructure, run piggy credentials set -file <your config file> or piggy credentials create.')
-    click.echo(
-        'If you have not set up your AWS infrastructre, run piggy setup.')
-    click.echo('')
 
 
 @click.group()
@@ -108,8 +77,8 @@ def setup(**kwargs):
     )
 
     resp = setup.run()
-
-    click.echo(resp)
+    click.echo()
+    click.secho(resp, fg='green')
 
 
 @piggy.group()
@@ -132,19 +101,12 @@ def credentials():
 def create(**kwargs):
     credentials = CredentialsController()
     resp = credentials.create(**kwargs)
-    click.echo(resp)
+    click.echo()
+    click.secho(resp, fg='green')
+    click.echo()
 
 
 @credentials.command()
-@click.option('-file', 'credentials_file_path', type=click.Path(exists=True))
-def set(credentials_file_path):
-    credentials = CredentialsController()
-    resp = credentials.show(credentials_file_path=credentials_file_path)
-    click.echo(resp)
-
-
-@credentials.command()
-@pass_config
 @click.option('-region', 'aws_region', required=False)
 @click.option('-ssh_key_name', 'ssh_key_name', required=False)
 @click.option('-cluster_id', 'cluster_id', required=False)
@@ -155,71 +117,49 @@ def set(credentials_file_path):
 @click.option('-crypto_officer_password', 'crypto_officer_password', required=False)
 @click.option('-crypto_user_username', 'crypto_user_username', required=False)
 @click.option('-crypto_user_password', 'crypto_user_password', required=False)
-def update(config, **kwargs):
-    if bool(config.creds_exists):
-        update_dict = {}
-        for key, value in kwargs.items():
-            if bool(value):
-                update_dict[key] = value
+@click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
+@creds
+def update(credentials, **kwargs):
+    update_dict = {}
+    for key, value in kwargs.items():
+        if bool(value):
+            update_dict[key] = value
 
-        credentials = CredentialsController()
-        resp = credentials.update(
-            credentials_file_path=config.credentials_file_path, **update_dict)
+    resp = credentials.update(
+        credentials_file_path=credentials.credentials_file_path, **update_dict)
 
-        click.echo(resp)
-    else:
-        no_credentials_found()
+    click.echo()
+    click.secho(resp.data, fg='green')
+    click.echo()
 
 
 @piggy.command()
-@pass_config
+@click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
 @click.option('-sleep', 'action', flag_value='sleep', default=False)
 @click.option('-wake', 'action', flag_value='wake', default=False)
-def status(config, action):
-    if bool(config.creds_exists):
-        credentials = CredentialsController().create_from_file(
-            credentials_file_path=config.credentials_file_path)
+@creds
+def status(credentials, action):
+    status = StatusController(credentials=credentials)
 
-        aws_access_key_id = credentials.data['aws_access_key_id']
-        aws_secret_access_key = credentials.data['aws_secret_access_key']
-
-        ec2 = boto3.client(
-            'ec2',
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key
-        )
-        cloudhsmv2 = boto3.client(
-            'cloudhsmv2',
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key
-        )
-        resource = boto3.resource(
-            'ec2',
-            aws_access_key_id=aws_access_key_id,
-            aws_secret_access_key=aws_secret_access_key
-        )
-
-        status = StatusController(
-            credentials_file_path=config.credentials_file_path,
-            base_path=credentials.data['base_path'],
-            ec2=ec2,
-            cloudhsmv2=cloudhsmv2,
-            resource=resource
-        )
-
-        if action == 'wake':
-            if click.confirm('Are you sure you want to wake the pig, starting an HSM costs money?'):
-                resp = status.wake()
-                click.echo(resp)
-        elif action == 'sleep':
-            if click.confirm('Are you sure you want to put the pig to sleep?'):
-                resp = status.sleep()
-                click.echo(resp)
-        else:
-            resp = status.show()
-            click.echo(resp)
+    if action == 'wake':
+        click.echo()
+        if click.confirm(click.style('Are you sure you want to wake the pig, starting an HSM costs money?', fg='red')):
+            resp = status.wake()
+            click.echo()
+            click.secho(resp, fg='green')
+            click.echo()
+    elif action == 'sleep':
+        click.echo()
+        if click.confirm(click.style('Are you sure you want to put the pig to sleep?', fg='red')):
+            resp = status.sleep()
+            click.echo()
+            click.secho(resp, fg='green')
+            click.echo()
     else:
-        no_credentials_found()
+        resp = status.show()
+        click.echo()
+        click.secho(resp, fg='green')
+        click.echo()
 
 
 @piggy.group()
@@ -228,106 +168,106 @@ def address():
 
 
 @address.command()
-@pass_config
-def list(config):
-    if bool(config.creds_exists):
-        controller = AddressController(config=config)
-        resp = controller.index()
-        for address in resp['data']['addresses']:
-            click.echo('')
-            click.echo(
-                f"id: {address.id}, address: {address.address}, confirmed_balance: {address.confirmed_balance}, spent: {address.spent}")
-            click.echo(f"txrefs: {address.txrefs}")
-            click.echo('')
-    else:
-        no_credentials_found()
+@click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
+@creds
+def list(credentials):
+    controller = AddressController(credentials=credentials)
+    resp = controller.index()
+    click.echo('')
+    for address in resp['data']['addresses']:
+        if address.spent is True:
+            color = 'red'
+        elif address.confirmed_balance > 0:
+            color = 'green'
+        else:
+            color = 'blue'
+
+        click.secho(
+            f"id: {address.id}, address: {address.address}, confirmed_balance: {address.confirmed_balance}, spent: {address.spent}", fg=color)
+    click.echo()
 
 
 @address.command()
-@pass_config
-def create(config):
-    if bool(config.creds_exists):
-        controller = AddressController(config=config)
-        resp = controller.create()
-        address = resp['data']['address']
-        click.echo('')
-        click.echo(f'id: {address.id}')
-        click.echo(f'address: {address.address}')
-        click.echo(f'confirmed_balance: {address.confirmed_balance}')
-        click.echo(f'spent: {address.spent}')
-        click.echo('')
-        click.echo(f'public_key_handle: {address.pub_key_handle}')
-        click.echo(f'private_key_handle: {address.private_key_handle}')
-        click.echo('')
-        click.echo('public_key_pem: ')
-        click.echo(address.pub_key_pem)
-        click.echo('')
-        click.echo('txrefs:')
-        click.echo(address.txrefs)
-        click.echo('')
+@click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
+@creds
+@check_status
+def create(credentials):
+    controller = AddressController(credentials=credentials)
+    resp = controller.create()
+    address = resp['data']['address']
+    click.echo()
+    click.secho(f'id: {address.id}', fg='green')
+    click.secho(f'address: {address.address}', fg='green')
+    click.secho(
+        f'confirmed_balance: {address.confirmed_balance}', fg='green')
+    click.secho(f'spent: {address.spent}', fg='green')
+    click.echo()
+    click.secho(f'public_key_handle: {address.pub_key_handle}', fg='green')
+    click.secho(
+        f'private_key_handle: {address.private_key_handle}', fg='green')
+    click.echo()
+    click.secho('public_key_pem: ', fg='green')
+    click.secho(address.pub_key_pem, fg='green')
+    click.echo()
 
-    else:
-        no_credentials_found()
+
+@address.command()
+@click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
+@click.option('-id', 'id', prompt='Address ID', required=True)
+@creds
+def show(credentials, id):
+    controller = AddressController(credentials=credentials)
+    resp = controller.show(id=id)
+    address = resp['data']['address']
+
+    click.echo()
+    click.secho(f'id: {address.id}', fg='green')
+    click.secho(f'address: {address.address}', fg='green')
+    click.secho(
+        f'confirmed_balance: {address.confirmed_balance}', fg='green')
+    click.secho(f'spent: {address.spent}', fg='green')
+    click.echo()
+    click.secho(f'public_key_handle: {address.pub_key_handle}', fg='green')
+    click.secho(
+        f'private_key_handle: {address.private_key_handle}', fg='green')
+    click.echo()
+    click.secho('public_key_pem: ', fg='green')
+    click.secho(address.pub_key_pem, fg='green')
+    click.echo()
+    click.secho('txrefs:', fg='green')
+    click.secho(address.txrefs, fg='green')
+    click.echo()
 
 
 @address.command()
 @click.option('-id', 'id', prompt='Address ID', required=True)
-@pass_config
-def show(config, id):
-    if bool(config.creds_exists):
-        controller = AddressController(config=config)
-        resp = controller.show(id=id)
-        address = resp['data']['address']
-        click.echo('')
-        click.echo(f'id: {address.id}')
-        click.echo(f'address: {address.address}')
-        click.echo(f'confirmed_balance: {address.confirmed_balance}')
-        click.echo(f'spent: {address.spent}')
-        click.echo('')
-        click.echo(f'public_key_handle: {address.pub_key_handle}')
-        click.echo(f'private_key_handle: {address.private_key_handle}')
-        click.echo('')
-        click.echo('public_key_pem: ')
-        click.echo(address.pub_key_pem)
-        click.echo('')
-        click.echo('txrefs:')
-        click.echo(address.txrefs)
-        click.echo('')
+@click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
+@creds
+def update(credentials, id):
+    controller = AddressController(credentials=credentials)
+    resp = controller.update(id=id)
+    address = resp['data']['address']
 
-    else:
-        no_credentials_found()
-
-
-@address.command()
-@click.option('-id', 'id', prompt='Address ID', required=True)
-@pass_config
-def update(config, id):
-    if bool(config.creds_exists):
-        controller = AddressController(config=config)
-        resp = controller.update(id=id)
-        address = resp['data']['address']
-        click.echo('')
-        click.echo(f'id: {address.id}')
-        click.echo(f'address: {address.address}')
-        click.echo(f'confirmed_balance: {address.confirmed_balance}')
-        click.echo(f'spent: {address.spent}')
-        click.echo('')
-        click.echo(f'public_key_handle: {address.pub_key_handle}')
-        click.echo(f'private_key_handle: {address.private_key_handle}')
-        click.echo('')
-        click.echo('public_key_pem: ')
-        click.echo(address.pub_key_pem)
-        click.echo('')
-        click.echo('txrefs:')
-        click.echo(address.txrefs)
-        click.echo('')
-
-    else:
-        no_credentials_found()
+    click.echo()
+    click.secho(f'id: {address.id}', fg='green')
+    click.secho(f'address: {address.address}', fg='green')
+    click.secho(
+        f'confirmed_balance: {address.confirmed_balance}', fg='green')
+    click.secho(f'spent: {address.spent}', fg='green')
+    click.echo()
+    click.secho(f'public_key_handle: {address.pub_key_handle}', fg='green')
+    click.secho(
+        f'private_key_handle: {address.private_key_handle}', fg='green')
+    click.echo()
+    click.secho('public_key_pem: ', fg='green')
+    click.secho(address.pub_key_pem, fg='green')
+    click.echo()
+    click.secho('txrefs:', fg='green')
+    click.secho(address.txrefs, fg='green')
+    click.echo()
 
 
 @piggy.command()
-@pass_config
 @click.option('-all', 'all', is_flag=True, required=True, prompt="Send recipient all the BTC in address", cls=NotRequiredIf, not_required_if='partial')
 @click.option('-some', 'partial', is_flag=True)
 @click.option('-from', 'address_id', prompt='Sending Address ID', required=True)
@@ -336,52 +276,54 @@ def update(config, id):
 @click.option('-qty', 'value', type=click.INT, prompt='Quantity to send',  cls=NotRequiredIf, not_required_if='all')
 @click.option('-change', 'change_address', required=True, prompt='Change address',
               cls=NotRequiredIf, not_required_if='all')
-def send(config, address_id, recipient, all, partial, fee, value, change_address):
-    if bool(config.creds_exists):
-        controller = TxController(config=config)
-        valid = controller.validate(address_id=address_id, recipient=recipient,
-                                    all=all, fee=fee, value=value, change_address=change_address)
-        if valid.get('error') is not None:
-            click.echo('')
-            click.echo(f"Danger Will Robinson! {valid['error']}")
-            click.echo('')
+@click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
+@creds
+@check_status
+def send(credentials, address_id, recipient, all, partial, fee, value, change_address):
+    controller = TxController(credentials=credentials)
+    valid = controller.validate(address_id=address_id, recipient=recipient,
+                                all=all, fee=fee, value=value, change_address=change_address)
 
-        elif all:
-            click.echo('')
-            click.echo('Transation Details:')
+    if valid.get('error') is not None:
+        click.echo()
+        click.secho(f"Danger Will Robinson! {valid['error']}", fg="red")
+        click.echo()
+
+    elif all:
+        click.echo()
+        click.secho('Transation Details:', fg='green')
+        click.echo()
+        click.secho(
+            f"Address {valid['address'].address} will send:", fg='green')
+        click.secho(
+            f"  * {valid['value']} SATs to {valid['recipient']}, and", fg='green')
+        click.secho(f"  * pay a {fee} SATs mining fee.", fg='green')
+        click.echo()
+
+        if click.confirm('Confirm details'):
+            tx_hex = controller.create(**valid)
+
             click.echo()
-            click.echo(f"Address {valid['address'].address} will send:")
-            click.echo(
-                f"  * {valid['value']} SATs to {valid['recipient']}, and")
-            click.echo(f"  * pay a {fee} SATs mining fee.")
-            click.echo('')
-
-            if click.confirm('Confirm details'):
-                tx_hex = controller.create(**valid)
-
-                click.echo()
-                click.echo('Raw Tx Hex:')
-                click.echo(tx_hex)
-                click.echo()
-        else:
-            click.echo('')
-            click.echo('Transation Details:')
+            click.secho('Raw Tx Hex:', fg='green')
             click.echo()
-            click.echo(f"Address {valid['address'].address} will sends:")
-            click.echo(
-                f"  * {valid['value']} SATs to {valid['recipient']},")
-            click.echo(
-                f"  * {valid['change']} SATs to {valid['change_address']}, and")
-            click.echo(f"  * pay a {fee} SATs mining fee.")
-            click.echo('')
-
-            if click.confirm('Confirm details'):
-                tx_hex = controller.create(**valid)
-
-                click.echo()
-                click.echo('Raw Tx Hex:')
-                click.echo(tx_hex)
-                click.echo()
-
+            click.secho(tx_hex, fg='green')
+            click.echo()
     else:
-        no_credentials_found()
+        click.echo('')
+        click.echo('Transation Details:')
+        click.echo()
+        click.echo(f"Address {valid['address'].address} will sends:")
+        click.echo(
+            f"  * {valid['value']} SATs to {valid['recipient']},")
+        click.echo(
+            f"  * {valid['change']} SATs to {valid['change_address']}, and")
+        click.echo(f"  * pay a {fee} SATs mining fee.")
+        click.echo('')
+
+        if click.confirm('Confirm details'):
+            tx_hex = controller.create(**valid)
+
+            click.echo()
+            click.echo('Raw Tx Hex:')
+            click.echo(tx_hex)
+            click.echo()

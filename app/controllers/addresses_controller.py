@@ -5,23 +5,23 @@ from app.models.instance_model import Instance
 from app.models.cluster_model import Cluster
 from app.models.address_model import Address
 
-import boto3
 import uuid
 import os
 
 
 class AddressController:
 
-    def __init__(self, config):
-        self.credentials = CredentialsController().create_from_file(
-            credentials_file_path=config.credentials_file_path)
+    def __init__(self, credentials):
+        self.credentials = credentials
 
     def index(self):
-        addresses = Address.all(bucket=self.bucket_name, s3=self.s3)
+        addresses = Address.all(bucket=self.bucket_name,
+                                s3=self.credentials.s3)
         for address in addresses:
             self.update(id=address.id)
 
-        addresses = Address.all(bucket=self.bucket_name, s3=self.s3)
+        addresses = Address.all(bucket=self.bucket_name,
+                                s3=self.credentials.s3)
         return {'data': {'addresses': addresses}, 'http_status_code': 200}
 
     def create(self):
@@ -36,58 +36,32 @@ class AddressController:
         address = Address.create(pub_key=pub_key)
         assert address.save(
             bucket=self.bucket_name,
-            s3=self.s3,
+            s3=self.credentials.s3,
             region=self.credentials.data['aws_region']
         ), f"Failed to save address: {address.id} to bucket: {self.bucket_name}"
         return {'data': {'address': address}, 'http_status_code': 200}
 
     def show(self, id):
-        address = Address.find(bucket=self.bucket_name, s3=self.s3, id=id)
+        address = Address.find(bucket=self.bucket_name,
+                               s3=self.credentials.s3, id=id)
         return {'data': {'address': address}, 'http_status_code': 200}
 
     def update(self, id):
         address = Address.find(
             id=id,
             bucket=self.bucket_name,
-            s3=self.s3
+            s3=self.credentials.s3
         ).refresh(
             bucket=self.bucket_name,
-            s3=self.s3,
+            s3=self.credentials.s3,
             region=self.credentials.data['aws_region']
         )
         return {'data': {'address': address}, 'http_status_code': 200}
 
     @property
-    def resource(self):
-        resource = boto3.resource(
-            'ec2',
-            aws_access_key_id=self.credentials.data['aws_access_key_id'],
-            aws_secret_access_key=self.credentials.data['aws_secret_access_key']
-        )
-        return resource
-
-    @property
-    def cloudhsmv2(self):
-        cloudhsmv2 = boto3.client(
-            'cloudhsmv2',
-            aws_access_key_id=self.credentials.data['aws_access_key_id'],
-            aws_secret_access_key=self.credentials.data['aws_secret_access_key']
-        )
-        return cloudhsmv2
-
-    @property
-    def s3(self):
-        s3 = boto3.client(
-            's3',
-            aws_access_key_id=self.credentials.data['aws_access_key_id'],
-            aws_secret_access_key=self.credentials.data['aws_secret_access_key']
-        )
-        return s3
-
-    @property
     def ip_address(self):
         instance_id = self.credentials.data['instance_id']
-        instance = Instance(id=instance_id, resource=self.resource)
+        instance = Instance(id=instance_id, resource=self.credentials.resource)
         ip_address = instance.public_ip_address
         return ip_address
 
@@ -102,7 +76,7 @@ class AddressController:
     @property
     def eni_ip(self):
         cluster = Cluster(
-            id=self.credentials.data['cluster_id'], client=self.cloudhsmv2)
+            id=self.credentials.data['cluster_id'], client=self.credentials.cloudhsmv2)
         hsms = cluster.hsms
         if bool(hsms) is False:
             raise NoHSMFoundError(f'Cluster: {cluster.id} has no HSMs')

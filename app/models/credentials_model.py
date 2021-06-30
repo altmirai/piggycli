@@ -1,5 +1,6 @@
 import json
 import os
+import boto3
 
 
 class CredentialsData:
@@ -23,38 +24,29 @@ def get_credentials_data(**kwargs):
     return credentials_data.__dict__
 
 
-def set_env_var(var, value):
-    with open('.env', 'r') as file:
-        env_vars_json = file.read()
-
-    env_vars = json.loads(env_vars_json)
-    env_vars[var] = value
-
-    with open('.env', 'w') as file:
-        file.write(json.dumps(env_vars))
-
-    return
-
-
-def read_env_vars():
-    with open('.env', 'r') as file:
-        env_vars_json = file.read()
-    env_vars = json.loads(env_vars_json)
-    return env_vars
-
-
 class Credentials:
     def __init__(self, credentials_file_path, data):
         self.credentials_file_path = credentials_file_path
         self.data = data
+        self.ec2 = boto3.client(
+            'ec2',
+            aws_access_key_id=self.data['aws_access_key_id'],
+            aws_secret_access_key=self.data['aws_secret_access_key'])
+        self.cloudhsmv2 = boto3.client('cloudhsmv2',
+                                       aws_access_key_id=self.data['aws_access_key_id'],
+                                       aws_secret_access_key=self.data['aws_secret_access_key'])
+        self.resource = boto3.resource('ec2',
+                                       aws_access_key_id=self.data['aws_access_key_id'],
+                                       aws_secret_access_key=self.data['aws_secret_access_key'])
+        self.s3 = boto3.client('s3',
+                               aws_access_key_id=self.data['aws_access_key_id'],
+                               aws_secret_access_key=self.data['aws_secret_access_key'])
 
     @classmethod
     def create(cls, credentials_file_path, data):
 
         _write_credentials_to_file(
             credentials_file_path=credentials_file_path, data=data)
-
-        set_env_var(var='PATH', value=credentials_file_path)
 
         credentials = Credentials(
             credentials_file_path=credentials_file_path, data=data)
@@ -80,9 +72,6 @@ class Credentials:
         _write_credentials_to_file(
             credentials_file_path=self.credentials_file_path, data=self.data)
         return self
-
-    def delete(self):
-        return
 
 
 def _write_credentials_to_file(credentials_file_path, data):
