@@ -34,7 +34,7 @@ setup(
     long_description_content_type='text/markdown',
     entry_points='''
         [console_scripts]
-        piggy=app.routes.click:piggy''',
+        piggy=piggy-cli.app.routes.click:piggy''',
     url='',
     keywords='altpiggybank'
 )

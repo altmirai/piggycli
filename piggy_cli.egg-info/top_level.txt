@@ -1,1 +1,1 @@
-piggy-cli
+piggycli
