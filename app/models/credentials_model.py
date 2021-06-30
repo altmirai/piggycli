@@ -30,17 +30,28 @@ class Credentials:
         self.data = data
         self.ec2 = boto3.client(
             'ec2',
+            region_name=data['aws_region'],
             aws_access_key_id=self.data['aws_access_key_id'],
-            aws_secret_access_key=self.data['aws_secret_access_key'])
-        self.cloudhsmv2 = boto3.client('cloudhsmv2',
-                                       aws_access_key_id=self.data['aws_access_key_id'],
-                                       aws_secret_access_key=self.data['aws_secret_access_key'])
-        self.resource = boto3.resource('ec2',
-                                       aws_access_key_id=self.data['aws_access_key_id'],
-                                       aws_secret_access_key=self.data['aws_secret_access_key'])
-        self.s3 = boto3.client('s3',
-                               aws_access_key_id=self.data['aws_access_key_id'],
-                               aws_secret_access_key=self.data['aws_secret_access_key'])
+            aws_secret_access_key=self.data['aws_secret_access_key']
+        )
+        self.cloudhsmv2 = boto3.client(
+            'cloudhsmv2',
+            region_name=data['aws_region'],
+            aws_access_key_id=self.data['aws_access_key_id'],
+            aws_secret_access_key=self.data['aws_secret_access_key']
+        )
+        self.resource = boto3.resource(
+            'ec2',
+            region_name=data['aws_region'],
+            aws_access_key_id=self.data['aws_access_key_id'],
+            aws_secret_access_key=self.data['aws_secret_access_key']
+        )
+        self.s3 = boto3.client(
+            's3',
+            region_name=data['aws_region'],
+            aws_access_key_id=self.data['aws_access_key_id'],
+            aws_secret_access_key=self.data['aws_secret_access_key']
+        )
 
     @classmethod
     def create(cls, credentials_file_path, data):

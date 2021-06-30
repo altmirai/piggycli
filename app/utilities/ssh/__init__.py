@@ -70,7 +70,6 @@ class SSH:
 
 def install_packages(ip_address, ssh_key_file_path):
     try:
-        print('Installing Packages')
         ssh = SSH(ip_address=ip_address, ssh_key_file_path=ssh_key_file_path)
         ssh.connect()
 

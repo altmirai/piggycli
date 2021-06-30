@@ -1,6 +1,7 @@
 import subprocess
 import json
 from pathlib import Path
+import time
 
 
 class Tf:
@@ -11,27 +12,9 @@ class Tf:
         self.ssh_key_name = ssh_key_name
         self.dir = Path(__file__).parent
 
-    @property
-    def cluster_id(self):
-        return self.outputs['cluster_id']['value'] if self.outputs else None
-
-    @property
-    def vpc_id(self):
-        return self.outputs['vpc_id']['value'] if self.outputs else None
-
-    @property
-    def ec2_instance_id(self):
-        return self.outputs['ec2_instance_id']['value'] if self.outputs else None
-
-    @property
-    def outputs(self):
-        with open('app/utilities/terraform/terraform.tfstate', 'r') as file:
-            state = json.load(file)
-        return state['outputs']
-
     def init(self):
         cmds = ['terraform', 'init']
-        resp = subprocess.run(cmds, cwd=self.dir, capture_output=False)
+        resp = subprocess.run(cmds, cwd=self.dir, capture_output=True)
         assert resp.returncode == 0, 'Terraform initialization failed'
         return True
 
@@ -42,27 +25,32 @@ class Tf:
         return True
 
     def validate(self):
-        self.init_validate()
         cmds = ['terraform', 'validate']
         resp = subprocess.run(cmds, cwd=self.dir, capture_output=False)
         assert resp.returncode == 0, 'Terraform validation failed'
-        self._clean_up()
         return True
 
     def build(self):
-        self.init()
         cmds = self._add_vars(['terraform', 'apply', '-auto-approve'])
         resp = subprocess.run(cmds, cwd=self.dir, capture_output=False)
         assert resp.returncode == 0, 'Terraform build failed'
-        self._clean_up()
-        return {'cluster_id': self.cluster_id, 'vpc_id': self.vpc_id, 'instance_id': self.ec2_instance_id}
+        return True
+
+    def outputs(self):
+        resp = subprocess.run(['terraform', 'output', '-json'],
+                              cwd=self.dir, capture_output=True)
+        assert resp.returncode == 0, 'Terraform output failed'
+        outputs = json.loads(resp.stdout.decode())
+        return {
+            'cluster_id': outputs['cluster_id']['value'],
+            'instance_id': outputs['ec2_instance_id']['value'],
+            'vpc_id': outputs['vpc_id']['value']
+        }
 
     def destroy(self):
-        self.init()
         cmds = self._add_vars(['terraform', 'destroy', '-auto-approve'])
         resp = subprocess.run(cmds, cwd=self.dir, capture_output=False)
         assert resp.returncode == 0, 'Terraform destroy failed'
-        self._clean_up()
         return True
 
     def _add_vars(self, cmds):
@@ -78,3 +66,7 @@ class Tf:
         resp = subprocess.run(cmds, cwd=self.dir, capture_output=False)
         assert resp.returncode == 0, 'Terraform clean up failed'
         return True
+
+
+class tfstateFileNotFoundError(Exception):
+    pass

@@ -52,15 +52,14 @@ def piggy():
 def setup(**kwargs):
     aws_access_key_id = kwargs['aws_access_key_id']
     aws_secret_access_key = kwargs['aws_secret_access_key']
+    aws_region = kwargs['aws_region']
 
-    ec2 = boto3.client('ec2', aws_access_key_id=aws_access_key_id,
+    ec2 = boto3.client('ec2', region_name=aws_region, aws_access_key_id=aws_access_key_id,
                        aws_secret_access_key=aws_secret_access_key)
-    cloudhsmv2 = boto3.client(
-        'cloudhsmv2', aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key)
-    resource = boto3.resource(
-        'ec2', aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key)
+    cloudhsmv2 = boto3.client('cloudhsmv2', region_name=aws_region,
+                              aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
+    resource = boto3.resource('ec2', region_name=aws_region,
+                              aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key)
 
     setup = Setup(
         ec2=ec2,
@@ -77,8 +76,23 @@ def setup(**kwargs):
     )
 
     resp = setup.run()
-    click.echo()
-    click.secho(resp, fg='green')
+    data = resp.get('data')
+    if data is None:
+        click.secho(resp['error'], fg='red')
+    else:
+        click.echo()
+        click.secho(
+            f"AWS cluster: {data['cluster_id']} and all associated resources have been created.", fg='green')
+        click.echo()
+        click.secho(
+            "A folder with the files needed to access the cluster has been created on your external Piggy drive.", fg='green')
+        click.echo()
+        click.secho(
+            "Piggy status is awake and available to create address by running piggy address create.", fg='green')
+        click.echo()
+        click.secho(
+            "Run piggy status -sleep whenever your done using AWS CloudHSM to stop AWS from charging your account.", fg='red')
+        click.echo()
 
 
 @piggy.group()

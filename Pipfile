@@ -14,6 +14,7 @@ base58 = "*"
 ecdsa = "*"
 requests = "*"
 blockcypher = "*"
+piggycli = "*"
 
 [dev-packages]
 autopep8 = "*"

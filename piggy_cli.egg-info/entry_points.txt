@@ -1,3 +1,0 @@
-
-        [console_scripts]
-        piggy=app.routes.click:piggy

@@ -28,14 +28,21 @@ class Setup:
         self.crypto_user_password = crypto_user_password
 
     def run(self):
+        try:
+            resp = self.build()
+            return {'data': resp}
+
+        except Exception as e:
+            return {'error': e.args[0]}
+
+    def build(self):
         ssh_key = _get_ssh_key(client=self.ec2)
 
         resp = _build_infrastructure(
             ssh_key_name=ssh_key.name,
             region=self.aws_region,
             aws_access_key_id=self.aws_access_key_id,
-            aws_secret_access_key=self.aws_secret_access_key
-        )
+            aws_secret_access_key=self.aws_secret_access_key)
 
         cluster = _cluster(id=resp['cluster_id'], client=self.cloudhsmv2)
 
@@ -60,8 +67,7 @@ class Setup:
             crypto_user_password=self.crypto_user_password,
             cluster_id=cluster.id,
             instance_id=instance.id,
-            ssh_key_name=ssh_key.name
-        )
+            ssh_key_name=ssh_key.name)
 
         hsm = _hsm(cluster=cluster, client=self.cloudhsmv2)
 
@@ -75,8 +81,7 @@ class Setup:
         uploaded = _upload_customer_ca_cert(
             instance=instance,
             file_path=customer_ca_cert_path,
-            ssh_key=ssh_key
-        )
+            ssh_key=ssh_key)
 
         initiated = _initialize_cluster(cluster=cluster, certs=certs)
 
@@ -109,13 +114,50 @@ def _get_ssh_key(client):
     return SSHKey.create(client=client)
 
 
-def _build_infrastructure(region, ssh_key_name, aws_access_key_id, aws_secret_access_key):
-    return Tf(
-        region=region,
-        ssh_key_name=ssh_key_name,
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key
-    ).build()
+def _build_infrastructure(region, ssh_key_name, aws_access_key_id, aws_secret_access_key, count=0):
+    count += 1
+    tf = Tf(region=region,
+            ssh_key_name=ssh_key_name,
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key)
+
+    initialized = tf.init()
+    assert initialized, 'Terraform initailization failedq'
+    print()
+    print('Validating Terraform configuration.')
+    print()
+
+    valid = tf.validate()
+    assert valid, 'Terraform validate failed.'
+    try:
+        outputs = tf.outputs()
+        return outputs
+    except KeyError as e:
+        pass
+
+    try:
+        print()
+        print('Starting Terraform build')
+        print()
+
+        built = tf.build()
+        assert built, 'Terraform build failed!'
+        outputs = tf.outputs()
+        tf._clean_up()
+        return outputs
+    except Exception as e:
+        print('Terraform build failed.')
+        print()
+        if count > 2:
+            destroyed = tf.destroy()
+            tf._clean_up()
+            raise TerraformBuildFailed(e.args[0])
+        else:
+            return _build_infrastructure(region=region,
+                                         ssh_key_name=ssh_key_name,
+                                         aws_access_key_id=aws_access_key_id,
+                                         aws_secret_access_key=aws_secret_access_key,
+                                         count=count)
 
 
 def _cluster(client, id):
@@ -165,7 +207,7 @@ def _hsm(client, cluster):
         availability_zone=cluster.azs[0],
         client=client
     )
-
+    print()
     seconds = 0
     while hsm.state != 'ACTIVE':
         time.sleep(10)
@@ -251,4 +293,8 @@ class PackageNotInstalledError(Exception):
 
 
 class WriteFileError(Exception):
+    pass
+
+
+class TerraformBuildFailed(Exception):
     pass
