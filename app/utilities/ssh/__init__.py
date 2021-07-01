@@ -3,6 +3,7 @@ from scp import SCPClient
 import time
 import os
 import json
+from pathlib import Path
 
 
 class SSH:
@@ -75,7 +76,7 @@ def install_packages(ip_address, ssh_key_file_path):
 
         output, error = ssh.run('sudo yum update -y')
 
-        ssh.put('app/utilities/ssh/install.sh')
+        ssh.put(os.path.join(Path(__file__).parent, 'install.sh'))
         output, error = ssh.run('ls')
         assert bool(error) is False, error
         home_dir = output.split('\n')
