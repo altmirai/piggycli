@@ -16,7 +16,7 @@ setup(
     ],
     description="A command line tool that provides the functionality to use AWS CloudHSM services as a bitcoin wallet.",
     name='piggycli',
-    version='0.0.32',
+    version='0.0.33',
     packages=['app', 'app.models', 'app.utilities', 'app.adapters', 'app.controllers',
               'app.routes', 'app.utilities.terraform', 'app.utilities.bitcoin', 'app.utilities.ssh'],
     install_requires=['click', 'paramiko', 'scp', 'boto3',

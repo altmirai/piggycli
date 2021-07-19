@@ -122,7 +122,7 @@ def _build_infrastructure(region, ssh_key_name, aws_access_key_id, aws_secret_ac
             aws_secret_access_key=aws_secret_access_key)
 
     initialized = tf.init()
-    assert initialized, 'Terraform initailization failedq'
+    assert initialized, 'Terraform initailization failed'
     print()
     print('Validating Terraform configuration.')
     print()

@@ -4,9 +4,11 @@ from app.controllers.status_controller import StatusController
 from app.controllers.addresses_controller import AddressController
 from app.controllers.tx_controller import TxController
 from app.utilities.decorators import creds, check_status
+from app.utilities.terraform import Tf
 
 import boto3
 import click
+import os
 
 
 class NotRequiredIf(click.Option):
@@ -323,21 +325,58 @@ def send(credentials, address_id, recipient, all, partial, fee, value, change_ad
             click.secho(tx_hex, fg='green')
             click.echo()
     else:
-        click.echo('')
-        click.echo('Transation Details:')
         click.echo()
-        click.echo(f"Address {valid['address'].address} will sends:")
-        click.echo(
-            f"  * {valid['value']} SATs to {valid['recipient']},")
-        click.echo(
-            f"  * {valid['change']} SATs to {valid['change_address']}, and")
-        click.echo(f"  * pay a {fee} SATs mining fee.")
-        click.echo('')
+        click.secho('Transation Details:', fg='green')
+        click.echo()
+        click.secho(
+            f"Address {valid['address'].address} will sends:", fg='green')
+        click.secho(
+            f"  * {valid['value']} SATs to {valid['recipient']},", fg='green')
+        click.secho(
+            f"  * {valid['change']} SATs to {valid['change_address']}, and", fg='green')
+        click.secho(f"  * pay a {fee} SATs mining fee.", fg='green')
+        click.echo()
 
         if click.confirm('Confirm details'):
             tx_hex = controller.create(**valid)
 
             click.echo()
-            click.echo('Raw Tx Hex:')
-            click.echo(tx_hex)
+            click.secho('Raw Tx Hex:', fg='green')
+            click.secho(tx_hex, fg='green')
             click.echo()
+
+
+@piggy.command()
+@click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
+@creds
+def destroy(credentials):
+    tf = Tf(region=credentials.data['aws_region'],
+            ssh_key_name=credentials.data['ssh_key_name'],
+            aws_access_key_id=credentials.data['aws_access_key_id'],
+            aws_secret_access_key=credentials.data['aws_secret_access_key'])
+
+    click.echo()
+    click.secho('Piggy will destroy the following:', fg='green')
+    click.echo()
+    click.secho(
+        f"  - AWS Cluster {credentials.data['cluster_id']}, ", fg='green')
+    click.secho(
+        f"  - AWS EC2 Instance {credentials.data['instance_id']}, and ", fg='green')
+    click.secho(f"  - The associated AWS VPC and Subnets.", fg='green')
+    click.echo()
+
+    if click.confirm(click.style('Confirm you want to delete / destroy the above?', fg='red')):
+        if click.confirm(click.style("Are you sure, this cannot be undone?", fg='red')):
+            try:
+                initialized = tf.init()
+                assert initialized, 'Terraform initialize failed'
+                destroyed = tf.destroy()
+                assert destroyed, 'Terraform destroy failed'
+                tf._clean_up()
+
+            except Exception as e:
+                click.secho(e.args[0], fg='red')
+        else:
+            pass
+    else:
+        pass
