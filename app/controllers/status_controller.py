@@ -40,7 +40,7 @@ class StatusController:
             status = 'Piggy is sleeping'
 
         else:
-            status = 'groogy, please run piggy status -wake or -sleep'
+            status = 'Piggy is groggy, please run piggy status -wake or -sleep'
 
         return status
 

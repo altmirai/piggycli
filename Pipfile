@@ -14,7 +14,7 @@ base58 = "*"
 ecdsa = "*"
 requests = "*"
 blockcypher = "*"
-piggycli = "*"
+piggycli = {editable = true, path = "."}
 
 [dev-packages]
 autopep8 = "*"

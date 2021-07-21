@@ -43,14 +43,14 @@ def piggy():
 
 
 @piggy.command()
-@click.option('-path', 'path', prompt='Path', required=True)
-@click.option('-region', 'aws_region', prompt='AWS Region', required=True)
-@click.option('-id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True)
-@click.option('-key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True)
-@click.option('-customer_ca_key_password', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True)
-@click.option('-crypto_officer_password', 'crypto_officer_password', prompt='Crypto Officer Password', required=True)
-@click.option('-crypto_user_username', 'crypto_user_username', prompt='Crypto User Username', required=True)
-@click.option('-crypto_user_password', 'crypto_user_password', prompt='Crypto User Password', required=True)
+@click.option('-path', 'path', prompt='Path', required=True, help='File path to your external drive')
+@click.option('-region', 'aws_region', prompt='AWS Region', required=True, help='AWS region code')
+@click.option('-id', 'aws_access_key_id', prompt='AWS Access Key ID', required=True, help='AWS access key ID')
+@click.option('-key', 'aws_secret_access_key', prompt='AWS Secret Access Key', required=True, help='AWS secret Access Key')
+@click.option('-customer-ca-key-password', 'customer_ca_key_password', prompt='Customer CA Key Password', required=True, help='User generated, 7-32 digits')
+@click.option('-crypto-officer-password', 'crypto_officer_password', prompt='Crypto Officer Password', required=True, help='User generated password, 7-32 digits')
+@click.option('-crypto-user-username', 'crypto_user_username', prompt='Crypto User Username', required=True, help='User generate username')
+@click.option('-crypto-user-password', 'crypto_user_password', prompt='Crypto User Password', required=True, help='User generated password, 7-32 digits')
 def setup(**kwargs):
     aws_access_key_id = kwargs['aws_access_key_id']
     aws_secret_access_key = kwargs['aws_secret_access_key']
