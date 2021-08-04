@@ -1,5 +1,3 @@
-Please see www.altmirai.com/altpiggybank
- 
 # AltPiggyBank
 ## _A Simple Python CLI Bitcoin Wallet for AWS CloudHSM_
 ## www.altmirai.com/altpiggybank
@@ -7,10 +5,10 @@ Please see www.altmirai.com/altpiggybank
 
 ## Features
 
-- Setup up your AWS CloudHSM infrastructure.
+- Setup your AWS infrastructure for CloudHSM.
 - Query the status, wake, and put your AWS CloudHSM service to sleep.
 - Create a bitcoin address, view all addresses, and show all the details of a specific address.
-- Send Bitcoin.
+- Send bitcoin.
 
 ___
 ## Disclaimers
@@ -40,7 +38,7 @@ pip install piggycli
 ```
 
 ### The Setup Command
-The setup command sets up and configures the AWS infrastructure required to run CoudHSM.
+The setup command sets up and configures your AWS infrastructure required to run CoudHSM.
 
 ### Your AWS Account
 AltPiggyBank was written and tested on a dedicated AWS account. We recommend creating a seperate AWS account for AltPiggyBank.
@@ -51,7 +49,7 @@ AltPiggyBank was written and tested on a dedicated AWS account. We recommend cre
 - Set your region on the AWS Mgmt Console to find the AWS region code. Write it down as you will need it later.
 
 ### External Storage for AWS Credentails
-AltPiggyBank looks for your AWS and CloudHSM credentials (not indcluding user mangaement console login credentials) on an external drive named Piggy.
+AltPiggyBank looks for your AWS and CloudHSM credentials on an external drive named Piggy (path: /Volumes/Piggy)
 
 ### Run the Setup Command
 
@@ -96,9 +94,7 @@ CloudHSM is a pay-as-you-go service with a per-hour cost of between $1.40 and $2
 - CloudHSM takes between five to ten minutes to start and stop.
 - The per-hour cost is charged for each full hour and any partial hour.
 
-As such, It wouldn’t be performant or cost effective for AltPiggyBank to start and stop CloudHSM for each cryptographic operations.
-
-You must manually manage the state of your CloudHSM service, creating the risk of you forgetting to stop CloudHSM and accruing unnecessary costs. If you forget to stop your CloudHSM service for a month, the cost would be around $1,000 or more.
+As such, It wouldn’t be performant or cost effective for AltPiggyBank to start and stop CloudHSM for each cryptographic operations. So, you must manually manage the state of your CloudHSM service, creating the risk of you forgetting to stop CloudHSM and accruing unnecessary costs. If you forget to stop your CloudHSM service for a month, the cost would be around $1,000 or more.
 
 To find the current state of your CloudHSM service, run:
 ```
