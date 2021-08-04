@@ -1,6 +1,6 @@
 # AltPiggyBank
 ## _A Simple Python CLI Bitcoin Wallet for AWS CloudHSM_
-## www.altmirai.com/altpiggybank
+## www.altmirai.com
 
 
 ## Features
