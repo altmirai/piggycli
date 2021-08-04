@@ -122,27 +122,27 @@ def credentials():
 #     click.echo()
 
 
-@credentials.command()
-@click.option('-ssh_key_name', 'ssh_key_name', required=False)
-@click.option('-aws-access-key-id', 'aws_access_key_id', required=False)
-@click.option('-aws-secret-access-key', 'aws_secret_access_key', required=False)
-@click.option('-crypto-officer-password', 'crypto_officer_password', required=False)
-@click.option('-crypto-user-username', 'crypto_user_username', required=False)
-@click.option('-crypto-user-password', 'crypto_user_password', required=False)
-@click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
-@creds
-def update(credentials, **kwargs):
-    update_dict = {}
-    for key, value in kwargs.items():
-        if bool(value):
-            update_dict[key] = value
+# @credentials.command()
+# @click.option('-ssh_key_name', 'ssh_key_name', required=False)
+# @click.option('-aws-access-key-id', 'aws_access_key_id', required=False)
+# @click.option('-aws-secret-access-key', 'aws_secret_access_key', required=False)
+# @click.option('-crypto-officer-password', 'crypto_officer_password', required=False)
+# @click.option('-crypto-user-username', 'crypto_user_username', required=False)
+# @click.option('-crypto-user-password', 'crypto_user_password', required=False)
+# @click.option('-creds', 'credentials_file_path', type=click.Path(), required=False)
+# @creds
+# def update(credentials, **kwargs):
+#     update_dict = {}
+#     for key, value in kwargs.items():
+#         if bool(value):
+#             update_dict[key] = value
 
-    resp = credentials.update(
-        credentials_file_path=credentials.credentials_file_path, **update_dict)
+#     resp = credentials.update(
+#         credentials_file_path=credentials.credentials_file_path, **update_dict)
 
-    click.echo()
-    click.secho(resp.data, fg='green')
-    click.echo()
+#     click.echo()
+#     click.secho(resp.data, fg='green')
+#     click.echo()
 
 
 @piggy.command()
