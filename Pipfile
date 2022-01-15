@@ -15,6 +15,7 @@ ecdsa = "*"
 requests = "*"
 blockcypher = "*"
 piggycli = {editable = true, path = "."}
+pytest = "*"
 
 [dev-packages]
 autopep8 = "*"

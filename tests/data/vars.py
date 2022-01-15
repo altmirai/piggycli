@@ -7,13 +7,13 @@ altmirai_secret_access_key = 'lYzvTwN1pdPhzFl822NmIn3rYcstLaITlOjgSOD3'
 
 aws_region = 'us-east-2'
 
-resource = boto3.resource('ec2')
-ec2 = botocore.session.get_session().create_client('ec2')
-cloudhsmv2 = botocore.session.get_session().create_client('cloudhsmv2')
+resource = boto3.resource('ec2', region_name=aws_region)
+ec2 = botocore.session.get_session().create_client('ec2', region_name=aws_region)
+cloudhsmv2 = botocore.session.get_session().create_client('cloudhsmv2', region_name=aws_region)
 s3 = botocore.session.get_session().create_client('s3', region_name=aws_region)
 
 cluster_id = 'cluster-lbtkdldygfh'
-test_base_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files'
+test_base_path = '/Users/kyle/GitHub/alt-piggy-bank/piggycli/tests/test_files'
 test_cluster_path = os.path.join(test_base_path, cluster_id)
 production_path = '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/production_files'
 

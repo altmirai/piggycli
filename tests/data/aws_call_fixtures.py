@@ -5,11 +5,12 @@ from unittest.mock import patch
 import botocore.session
 from botocore.stub import Stubber, ANY
 import pytest
+aws_region = 'us-east-2'
 
 
 @pytest.fixture
 def create_key_pair():
-    client = botocore.session.get_session().create_client('ec2')
+    client = botocore.session.get_session().create_client('ec2', region_name=data.aws_region)
     stubber = Stubber(client)
     stubber.add_response(
         'create_key_pair',
@@ -21,7 +22,7 @@ def create_key_pair():
 
 @pytest.fixture
 def describe_clusters():
-    client = botocore.session.get_session().create_client('cloudhsmv2')
+    client = botocore.session.get_session().create_client('cloudhsmv2', region_name=data.aws_region)
     stubber = Stubber(client)
     stubber.add_response(
         'describe_clusters',
@@ -34,7 +35,7 @@ def describe_clusters():
 
 @pytest.fixture
 def describe_cluster():
-    client = botocore.session.get_session().create_client('cloudhsmv2')
+    client = botocore.session.get_session().create_client('cloudhsmv2', region_name=data.aws_region)
     stubber = Stubber(client)
     stubber.add_response(
         'describe_clusters',
@@ -47,7 +48,7 @@ def describe_cluster():
 
 @pytest.fixture
 def create_hsm():
-    client = botocore.session.get_session().create_client('cloudhsmv2')
+    client = botocore.session.get_session().create_client('cloudhsmv2', region_name=data.aws_region)
     stubber = Stubber(client)
     stubber.add_response(
         'create_hsm',
@@ -60,7 +61,7 @@ def create_hsm():
 
 @pytest.fixture
 def delete_hsm():
-    client = botocore.session.get_session().create_client('cloudhsmv2')
+    client = botocore.session.get_session().create_client('cloudhsmv2', region_name=data.aws_region)
     stubber = Stubber(client)
     stubber.add_response(
         'delete_hsm',
@@ -73,7 +74,7 @@ def delete_hsm():
 
 @pytest.fixture
 def describe_instances():
-    client = botocore.session.get_session().create_client('ec2')
+    client = botocore.session.get_session().create_client('ec2', region_name=data.aws_region)
     stubber = Stubber(client)
     stubber.add_response(
         'describe_instances',

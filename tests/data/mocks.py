@@ -3,11 +3,14 @@ from unittest.mock import patch, Mock
 import os
 
 tf = Mock()
-tf.build.return_value = {
-    'cluster_id': data.cluster_id,
-    'vpc_id': data.vpc_id,
-    'instance_id': data.instance_id
-}
+tf.cluster_id = data.cluster_id
+tf.vpc_id = data.vpc_id
+tf.instance_id = data.instance_id
+# tf.build.return_value = {
+#     'cluster_id': data.cluster_id,
+#     'vpc_id': data.vpc_id,
+#     'instance_id': data.instance_id
+# }
 
 
 ssh_key = Mock()

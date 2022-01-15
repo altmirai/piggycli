@@ -19,17 +19,6 @@ def test_get_ssh_key(create_key_pair):
     assert key.material == data.create_key_pair_resp['KeyMaterial']
 
 
-@patch('app.controllers.setup_controller.Tf', return_value=tf, autospec=True)
-def test_build_infrastructure(mock_Tf):
-    resp = setup._build_infrastructure(
-        region=data.aws_region,
-        ssh_key_name=data.ssh_key_name,
-        aws_access_key_id=data.aws_access_key_id,
-        aws_secret_access_key=data.aws_secret_access_key
-    )
-    assert resp == tf.build()
-
-
 @patch('app.controllers.setup_controller.Cluster', return_value=cluster, autospec=True)
 def test_cluster(mock_Cluster):
     cluster = setup._cluster(
@@ -40,7 +29,8 @@ def test_cluster(mock_Cluster):
 def test_set_path():
     resp = setup._set_cluster_path(
         base_path=data.test_base_path, cluster=cluster)
-    assert resp == '/Users/kyle/GitHub/alt-piggy-bank/piggy-cli/tests/test_files/cluster-lbtkdldygfh'
+
+    assert resp == os.path.join(data.test_base_path, data.cluster_id)
 
 
 test_setup_vars = {
@@ -69,7 +59,7 @@ test_setup_vars = {
 @patch('app.controllers.setup_controller._activate_cluster', return_value=True, autospec=True)
 def test_run(*args):
     test_setup = setup.Setup(**test_setup_vars)
-    resp = test_setup.run()
+    resp = test_setup.run()['data']
     assert resp['cluster_id'] == cluster.id
     assert resp['ssh_key_name'] == ssh_key.name
     assert resp['ssh_key_pem'] == ssh_key.material
