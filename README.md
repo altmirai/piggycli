@@ -177,7 +177,7 @@ piggy send -from <addr id> -to <address> -fee <mining fee> -some -qty <quantity>
 or, just run:
 
 ```
-piggy setup
+piggy send
 ```
 and, AltPiggyBank will prompt you for the arguments.
 
