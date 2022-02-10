@@ -16,6 +16,7 @@ requests = "*"
 blockcypher = "*"
 piggycli = {editable = true, path = "."}
 pytest = "*"
+twine = "*"
 
 [dev-packages]
 autopep8 = "*"
